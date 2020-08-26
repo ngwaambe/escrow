@@ -1,0 +1,6 @@
+ +-+ +-+ +-+ +-+ +-+ +-+   +-+ +-+ +-+ +-+ +-+ +-+
+ |S| |i| |c| |u| |r| |o|   |E| |s| |c| |r| |o| |w|
+ +-+ +-+ +-+ +-+ +-+ +-+   +-+ +-+ +-+ +-+ +-+ +-+
+
+ Using SpringBoot ${spring-boot.formatted-version}
+

@@ -1,0 +1,73 @@
+
+spring:
+  application.name: 'sicuro-escrow'
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    platform: mysql
+    continueOnError: false
+    url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-test-query: 'SELECT 1'
+      validation-timeout: 3000
+      max-lifetime: 250000
+      idle-timeout: 45000
+  freemarker:
+    checkTemplateLocation: false
+  jpa:
+    open-in-view: false
+    show-sql: false
+    generateDdl: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  flyway:
+    locations: classpath:migration
+    schemas: sicuro
+    baseline-on-migrate: true
+
+server:
+  servlet:
+    port: 8080
+    session.timeout: 30m
+    context-path: '/'
+  error.whitelabel.enabled: false
+
+
+
+
+############################################  profile-specific configuration ##########################################
+
+---
+# ------------------------------------------------- Production profile ------------------------------------------------
+
+spring:
+  profiles: prod
+
+  datasource:
+    url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
+    username: root
+    password: root
+
+  banner.location: 'classpath:banner-prod.txt'
+
+server.port: 8080
+
+##logging.config: 'classpath:logback-prod.xml'
+
+---
+# ----------------------------------------------- Local development profile -------------------------------------------
+
+spring:
+  profiles: dev
+
+  datasource:
+    url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
+    username: 'root'
+    password: 'root'
+
+  banner.location: 'classpath:banner.txt'
+
