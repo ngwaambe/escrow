@@ -1,53 +1,56 @@
 package com.sicuro.escrow.model
 
-import com.sicuro.escrow.persistence.entity.ContactEntity
+import com.sicuro.escrow.persistence.entity.CustomerEntity
 import java.time.OffsetDateTime
 
-data class Contact(
-    var id: Long? = null,
+data class Customer constructor(
+    val id: Long? = null,
 
-    var customerNumber: String? = null,
+    val customerNumber: String,
 
-    var partnerId: String? = null,
+    val partnerId: String? = null,
 
-    var identityNumber: String,
+    val identityNumber: String?,
 
-    var title: Title,
+    val title: Title,
 
-    var firstName: String,
+    val firstName: String,
 
-    var lastName: String,
+    val lastName: String,
 
-    var married: Boolean = false,
+    val married: Boolean = false,
 
-    var gender: Gender,
+    val gender: Gender,
 
-    var organisation: String? = null,
+    val organisation: String? = null,
 
-    var preferedLanguage: String? = null,
+    val preferedLanguage: String? = null,
 
-    var allowNewsLetterNotification: Boolean = false,
+    val allowNewsLetterNotification: Boolean = false,
 
-    var applyVat: Boolean = false,
+    val applyVat: Boolean = false,
 
-    var address: Address? = null,
+    val address: Address? = null,
 
-    var taxNumber: String? = null,
+    val taxNumber: String? = null,
 
-    var phoneNumber: String? = null,
+    val phoneNumber: String? = null,
 
-    var fax: String? = null,
+    val fax: String? = null,
 
-    var email: String? = null,
+    val email: String,
 
-    var website: String? = null,
+    val website: String? = null,
 
-    var created: OffsetDateTime?=null,
+    val created: OffsetDateTime?=null,
 
-    var lastModified: OffsetDateTime?=null) {
+    val lastModified: OffsetDateTime?=null) {
 
-    fun convert(): ContactEntity {
-        return ContactEntity(
+    constructor(customerNumber: String,title: Title,firstName: String,lastName: String, preferedLanguage: String, email:String, organisation: String?, taxNumber: String?):
+        this(null, customerNumber, null, null, title, firstName, lastName, false, title.gender, organisation, preferedLanguage, false, false, null, taxNumber, null, null, email, null, null, null);
+
+    fun convert(): CustomerEntity {
+        return CustomerEntity(
             id,
             customerNumber,
             partnerId,
@@ -73,13 +76,13 @@ data class Contact(
 
 
     companion object {
-        fun convert(obj: ContactEntity): Contact {
+        fun convert(obj: CustomerEntity): Customer {
             val address = if (obj.address !== null) {
                 Address.convert(obj.address!!)
             } else {
                 null
             }
-            return Contact(
+            return Customer(
                 obj.id,
                 obj.customerNumber,
                 obj.partnerId,
@@ -103,4 +106,5 @@ data class Contact(
                 obj.lastModified);
         }
     }
+
 }

@@ -25,7 +25,7 @@ class ActivationLinkEntity constructor(
      */
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
-    var customer: ContactEntity? = null
+    var customer: CustomerEntity? = null
 
 ): BaseEntity () {
     override fun equals(o: Any?): Boolean {

@@ -5,7 +5,6 @@ import com.sicuro.escrow.model.Title
 import org.hibernate.annotations.Fetch
 import org.hibernate.annotations.FetchMode
 import java.time.OffsetDateTime
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -16,11 +15,11 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "contacts")
-class ContactEntity(
+class CustomerEntity(
     id: Long? = null,
 
     @Column(name = "id_number", nullable = false, unique = true)
-    var customerNumber: String? = null,
+    var customerNumber: String,
 
 
     @Column(name = "partner_id")
@@ -28,7 +27,7 @@ class ContactEntity(
 
 
     @Column(name = "id_card_number")
-    var identityNumber: String,
+    var identityNumber: String? = null,
 
 
     @Column(name = "title")
@@ -77,7 +76,7 @@ class ContactEntity(
     var fax: String? = null,
 
     @Column(name = "email", unique = true, nullable = false)
-    var email: String? = null,
+    var email: String,
 
     @Column(name = "website")
     var website: String? = null,
@@ -88,7 +87,7 @@ class ContactEntity(
 
     override fun equals(obj: Any?): Boolean {
         if (this === obj) return true
-        if (obj !is ContactEntity) return false
+        if (obj !is CustomerEntity) return false
         if (!super.equals(obj)) return false
 
         if (customerNumber != obj.customerNumber) return false
