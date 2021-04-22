@@ -1,7 +1,9 @@
 package com.sicuro.escrow.persistence.entity
 
+import org.springframework.data.annotation.AccessType
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.security.Principal
 import java.time.OffsetDateTime
 import java.util.*
@@ -18,8 +20,12 @@ import javax.persistence.*
     Index(columnList = "name", name = "idx_name_roles"),
     Index(columnList = "description", name = "idx_description_roles")
 ])
-class RoleEntity constructor(
-    id:Long?,
+@EntityListeners(AuditingEntityListener::class)
+data class RoleEntity constructor(
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id:Long?,
     /**
      * Role name, unique identifier
      */
@@ -32,27 +38,12 @@ class RoleEntity constructor(
     @Column(nullable = false)
     var description: String? = null,
 
-    created: OffsetDateTime,
+    @CreatedDate
+    @Column(name = "created", nullable = false, insertable = true, updatable = false)
+    var created: OffsetDateTime? = null,
 
-    lastModified: OffsetDateTime
-
-):BaseEntity(id, created, lastModified){
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) return true
-        if (obj !is RoleEntity) return false
-        if (!super.equals(obj)) return false
-
-        if (roleName != obj.roleName) return false
-        if (description != obj.description) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + roleName.hashCode()
-        result = 31 * result + (description?.hashCode() ?: 0)
-        return result
-    }
-}
+    @LastModifiedDate
+    @Column(name = "last_modified", nullable = false, insertable = true, updatable = true)
+    var lastModified: OffsetDateTime? = null
+)
 

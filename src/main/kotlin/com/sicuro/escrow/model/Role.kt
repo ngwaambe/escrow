@@ -14,7 +14,7 @@ data class Role (
 ) : Principal {
 
 
-    fun convert() = RoleEntity(id, roleName, description, created?: OffsetDateTime.now(), lastModified?:OffsetDateTime.now());
+    fun convert() = RoleEntity(id, roleName, description);
 
 
     companion object Factory {

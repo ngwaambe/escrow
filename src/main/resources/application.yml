@@ -2,7 +2,7 @@
 spring:
   application.name: 'sicuro-escrow'
   datasource:
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
     platform: mysql
     continueOnError: false
     url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
@@ -15,8 +15,14 @@ spring:
       validation-timeout: 3000
       max-lifetime: 250000
       idle-timeout: 45000
+
   freemarker:
     checkTemplateLocation: false
+    template-loader-path: classpath:mail
+    prefer-file-system-access: false
+    charset: utf-8
+    suffix: ftl
+
   jpa:
     open-in-view: false
     show-sql: false
@@ -24,14 +30,46 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
   flyway:
     locations: classpath:migration
     schemas: sicuro
     baseline-on-migrate: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: noreply@sicuro.com
+    password: S2ic013uro
+    properties:
+      mail.smtp:
+        auth: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        starttls.enable: true
+        ssl:
+#          trust: *
+          protocols: TLSv1.2
+
+mail:
+  sender.address: sicuro.com GmbH(noreply)<noreply@sicuro.com>
+
+host.address: http://localhost:8080/
+
+activationlink:
+  expiration: 24
+
+security:
+  jwt:
+    public-key: classpath:public.txt
+    secret: bezKoderSecretKey
+    expirationMs: 240000
+    refreshExpirationMs: 480000
+
 server:
   servlet:
-    port: 8080
+    port: 6000
     session.timeout: 30m
     context-path: '/'
   error.whitelabel.enabled: false

@@ -14,9 +14,10 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "address")
-class AddressEntity constructor(
-
-    id:Long?,
+data class AddressEntity(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id:Long?,
     /**
      * Street.
      */
@@ -56,37 +57,14 @@ class AddressEntity constructor(
     @Column(name = "country_iso", nullable = false)
     var countryIso: String,
 
-    created: OffsetDateTime,
+    @Column(name = "phone_number", nullable = false)
+    var phoneNumber: String,
 
-    lastModified: OffsetDateTime
+    @CreatedDate
+    @Column(name = "created", nullable = false, insertable = true, updatable = false)
+    var created: OffsetDateTime? = null,
 
-
-): BaseEntity(id, created, lastModified) {
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) return true
-        if (obj !is AddressEntity) return false
-        if (!super.equals(obj)) return false
-
-        if (street != obj.street) return false
-        if (streetExtension != obj.streetExtension) return false
-        if (houseNumber != obj.houseNumber) return false
-        if (postalCode != obj.postalCode) return false
-        if (region != obj.region) return false
-        if (city != obj.city) return false
-        if (countryIso != obj.countryIso) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + street.hashCode()
-        result = 31 * result + (streetExtension?.hashCode() ?: 0)
-        result = 31 * result + (houseNumber?.hashCode() ?: 0)
-        result = 31 * result + postalCode.hashCode()
-        result = 31 * result + (region?.hashCode() ?: 0)
-        result = 31 * result + city.hashCode()
-        result = 31 * result + countryIso.hashCode()
-        return result
-    }
-}
+    @LastModifiedDate
+    @Column(name = "last_modified", nullable = false, insertable = true, updatable = true)
+    var lastModified: OffsetDateTime? = null
+)

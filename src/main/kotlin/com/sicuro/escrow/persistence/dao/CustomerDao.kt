@@ -6,4 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface CustomerDao: JpaRepository<CustomerEntity, Long> {
 
     fun countByCustomerNumber(customerNumber:String): Long
+
+    fun findByEmail(email: String): CustomerEntity?
+
 }

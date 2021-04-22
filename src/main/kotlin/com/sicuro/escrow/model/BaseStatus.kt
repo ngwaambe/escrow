@@ -6,7 +6,7 @@ package com.sicuro.escrow.model
  * @since 1.0.0
  * @author engwaambe
  */
-enum class BaseBoStatus( var statusName: String, var messageKey: String) {
+enum class BaseStatus(var statusName: String, var messageKey: String) {
     /**
      * Business object is active. Has taken part in a business activity within a period defined by system adminstrator
      * or active because certain rules or conditions have been fullfilled.

@@ -1,62 +1,48 @@
 package com.sicuro.escrow.persistence.entity
 
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.OffsetDateTime
 import javax.persistence.*
 
-/**
- * Activation link check.
- *
- * @author engwaambe
- */
 @Entity
 @Table(name = "activation_link")
+@EntityListeners(AuditingEntityListener::class)
 class ActivationLinkEntity constructor(
-    /**
-     * unique random generated id.
-     */
-    var uuid: String? = null,
+
+    @Id
+    var uuid: String,
 
     /**
      * states if link is still active;
      */
-    var isActive: Boolean = false,
+    var active: Boolean = false,
 
     /**
      * Customer ID
      */
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
-    var customer: CustomerEntity? = null
+    var customer: CustomerEntity,
 
-): BaseEntity () {
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o !is ActivationLinkEntity) return false
-        if (!super.equals(o)) return false
-        val that = o
-        if (isActive != that.isActive) return false
-        return if (if (uuid != null) uuid != that.uuid else that.uuid != null) false else !if (customer != null) !customer!!.equals(that.customer) else that.customer != null
-    }
+    @CreatedDate
+    @Column(name = "created", nullable = false, insertable = true, updatable = false)
+    var created: OffsetDateTime? = null,
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + if (uuid != null) uuid.hashCode() else 0
-        result = 31 * result + if (isActive) 1 else 0
-        result = 31 * result + if (customer != null) customer.hashCode() else 0
-        return result
-    }
+    @LastModifiedDate
+    @Column(name = "last_modified", nullable = false, insertable = true, updatable = true)
+    var lastModified: OffsetDateTime? = null
 
+) {
     override fun toString(): String {
         return "ActivationLinkBo{" +
-            "uuid='" + uuid + '\'' +
-            ", active=" + isActive +
+            "uuid='" + uuid +
+            ", active=" + active +
             ", customer=" + customer +
-            '}'
+            ", created="+ created.toString()+
+            ", lastModified="+ lastModified.toString()+
+            "}"
     }
 
-    companion object {
-        /**
-         *
-         */
-        private const val serialVersionUID = -2551113812964071314L
-    }
 }
