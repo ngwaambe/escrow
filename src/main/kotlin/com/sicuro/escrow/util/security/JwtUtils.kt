@@ -1,7 +1,7 @@
 package com.sicuro.escrow.util.security
 
 import com.sicuro.escrow.model.CheckTokenResponse
-import com.sicuro.escrow.persistence.dao.CustomerDao
+import com.sicuro.escrow.service.MyUser
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
@@ -11,25 +11,22 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import java.util.*
 
 
 @Component
-class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtSecret: String,
-                                      val customerDao: CustomerDao){
-
-
+class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtSecret: String){
 
     fun generateJWToken(authentication: Authentication, expiration:Number): String {
         val userdata = getUserDetails(authentication)
-        val customer = customerDao.findByEmail(userdata.username)
         val claims = DefaultClaims()
         claims.issuedAt = Date()
         claims.subject = userdata.username
         claims.expiration = Date(Date().time.plus(expiration.toInt()))
-        claims["customerId"] = customer!!.id.toString()
+        claims["customerId"] = userdata.customerId
+        claims["tempPwd"] = false
 
         return Jwts.builder()
             .setClaims(claims)
@@ -52,10 +49,19 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
             log.error(e.localizedMessage)
             return CheckTokenResponse(false, 0, e.localizedMessage)
         }
-
     }
 
-    private fun getUserDetails(authentication: Authentication) = authentication.principal as UserDetails
+    fun getCustomerIdFromToken(token:String) : Long {
+        try {
+            val jws:Jws<Claims> = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
+            return (jws.body["customerId"] as Int).toLong()
+        } catch (e: Exception) {
+            log.error(e.localizedMessage)
+            throw UsernameNotFoundException("Could not resolve user from token")
+        }
+    }
+
+    private fun getUserDetails(authentication: Authentication) = authentication.principal as MyUser
 
     companion object{
         private var log = LoggerFactory.getLogger(JwtUtils::class.java)

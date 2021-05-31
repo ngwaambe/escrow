@@ -9,6 +9,6 @@ import java.lang.annotation.Target
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtensionAnnotation(MysqlExtension)
-@interface NeedsMysql {
+@ExtensionAnnotation(EmbeddedMysqlExtension)
+@interface NeedsEmbeddedMysql {
 }

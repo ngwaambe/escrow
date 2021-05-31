@@ -17,15 +17,15 @@ data class Customer constructor(
 
     val email: String,
 
-    val preferedLanguage: String,
-
-    val applyVat: Boolean = false,
-
-    val organisation: String? = null,
+    val language: String,
 
     val address: Address? = null,
 
+    val organisation: String? = null,
+
     val taxNumber: String? = null,
+
+    val applyVat: Boolean = false,
 
     val partnerId: String? = null,
 
@@ -42,10 +42,10 @@ data class Customer constructor(
             title.gender,
             email,
             preferedLanguage,
-            false,
-            organisation,
             null,
+            organisation,
             taxNumber,
+            false,
             null,
             null,
         )
@@ -59,7 +59,7 @@ data class Customer constructor(
             lastName,
             gender,
             email,
-            preferedLanguage,
+            language,
             applyVat,
             organisation,
             address?.convert(),
@@ -84,11 +84,11 @@ data class Customer constructor(
                 obj.lastName,
                 obj.gender,
                 obj.email,
-                obj.preferedLanguage,
-                obj.applyVat,
-                obj.organisation,
+                obj.language,
                 address,
+                obj.organisation,
                 obj.taxNumber,
+                obj.applyVat,
                 obj.partnerId,
                 obj.identityNumber
             )

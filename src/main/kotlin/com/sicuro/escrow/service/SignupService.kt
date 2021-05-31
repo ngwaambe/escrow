@@ -1,18 +1,16 @@
 package com.sicuro.escrow.service
 
-import com.sicuro.escrow.exception.ExpiredAccountActivationLink
-import com.sicuro.escrow.exception.InvalidActivationLinkException
 import com.sicuro.escrow.exception.SendMailException
 import com.sicuro.escrow.exception.UserAlreadyExistException
-import com.sicuro.escrow.model.BaseStatus
-import com.sicuro.escrow.model.Customer
+import com.sicuro.escrow.model.CompleteSignupRequest
+import com.sicuro.escrow.model.LinkType
 import com.sicuro.escrow.model.SignupRequest
+import com.sicuro.escrow.persistence.ActivationLinkRepository
 import com.sicuro.escrow.persistence.CustomerRepository
 import com.sicuro.escrow.persistence.UserRepository
-import com.sicuro.escrow.persistence.dao.UserDao
-import com.sicuro.escrow.persistence.dao.ActivationLinkDao
 import com.sicuro.escrow.util.MessageBundleKey
 import com.sicuro.escrow.util.MessageUtil
+import com.sicuro.escrow.util.TextHelper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -20,68 +18,99 @@ import org.springframework.mail.MailException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 import java.util.*
 import javax.mail.MessagingException
-import kotlin.collections.HashMap
 
 @Service
 class SignupService @Autowired constructor(
     val customerRepository: CustomerRepository,
-    val userDao: UserDao,
-    val activationLinkDao: ActivationLinkDao,
+    val activationLinkRepository: ActivationLinkRepository,
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${host.address}") val hostName: String,
-    @Value("\${activationlink.expiration}") val expirationRange: Long){
+    @Value("\${host.address}") val hostName: String){
 
     @Transactional
     fun signup(signupRequest: SignupRequest) {
-        userDao.findByUsername(signupRequest.contact.email)?.let{
+        userRepository.findByUsername(signupRequest.contact.email)?.let{
             throw UserAlreadyExistException("User already exist exception")
         }
-        val (customer, activationId) = customerRepository.createCustomer(signupRequest)
+        val customer = customerRepository.createCustomer(signupRequest)
         val encodedPassword = passwordEncoder.encode(signupRequest.contact.password)
-        userRepository.createUser(
+
+        val (user, activationLinkId) = userRepository.createUser(
             signupRequest.contact.email,
             encodedPassword,
+            customer.id!!,
             listOf("ROLE_CUSTOMER")
         )
+        val props = mutableMapOf<String, String>()
+        props["name"] = TextHelper.getName(customer)
+        props["link"] = createRegistrationLink(activationLinkId)
+        props["accountNumber"] = customer.customerNumber
+        props["userName"] = user.username
+        val subject: String = getSubject(customer.language,"registration.checkDataText")!!
+        val email: String = customer.email
+        val template: String = getMailTemplate(customer.language,"registrationActivation")
+        sendMail(email, subject, template,  props)
+    }
 
-        sendMail(customer, activationId)
+    @Transactional
+    fun completeSignup(customerId: Long, completSignupRequest: CompleteSignupRequest) {
+        val customer = customerRepository.getCustomer(customerId)
+        customerRepository.updateAddress(completSignupRequest.address, customer, true)
+        userRepository.updateUserSequrityQuestion(completSignupRequest.securityQuestion, customer.email)
     }
 
     @Transactional
     fun activateAccount(activationUuid: String) {
-        val link = activationLinkDao.findById(activationUuid).orElseThrow{
-            InvalidActivationLinkException("Unknown activation link")
-        }
+        logger.info("activating account for activationId:${activationUuid}")
+        val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION)
+        userRepository.activateUser(link.user.username)
+        activationLinkRepository.delete(activationUuid)
+        logger.info("account :${link.user.username} has been activated")
+     }
 
-        if (link.created!!.isAfter(OffsetDateTime.now().minusHours(expirationRange))) {
-            throw ExpiredAccountActivationLink("Your activation link has expired")
-        }
+    @Transactional
+    fun initiatePasswordReset(email: String) {
+        val linkId  = userRepository.initiateResetPassword(email)
+        val customer = customerRepository.getCustomerByEmail(email)
 
-        userDao.findByUsername(link.customer.email)?.also { user ->
-            user.status = BaseStatus.active
-            userDao.save(user)
-        }?: throw RuntimeException("Could not resolve user in validated activation link")
+        val props = mutableMapOf<String, String>()
+        props["name"] = TextHelper.getName(customer)
+        props["link"] = createResetpasswordLink(linkId)
+        props["accountNumber"] = customer.customerNumber
+        props["userName"] = customer.email
+        val subject: String = getSubject(customer.language, "ResetpasswordStepOne")!!
+        val email: String = customer.email
+        val template: String = getMailTemplate(customer.language,"initiateResetPassword")
+        sendMail(email, subject, template, props)
     }
 
-    private fun sendMail(customer: Customer, uuid: String) {
+    fun resetPassword(activationUuid: String) {
+        val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD)
+        val newpassword = userRepository.resetPassword(link.user.username)
+        val customer = customerRepository.getCustomerByEmail(link.user.username)
+
+        val props = mutableMapOf<String, String>()
+        props["name"] = TextHelper.getName(customer)
+        props["link"] = StringBuilder().append(hostName).append("/authenticate").toString()
+        props["accountNumber"] = customer.customerNumber
+        props["userName"] = customer.email
+        props["password"] = newpassword
+        val subject: String = getSubject(customer.language, "ResetPasswordRequest")!!
+        val email: String = customer.email
+        val template: String = getMailTemplate(customer.language, "resetPassword")
+        sendMail(email, subject, template, props)
+    }
+
+    private fun sendMail(email:String, subject: String, template: String, props:MutableMap<String, String>) {
         try {
-            val model: MutableMap<String, String> = HashMap()
-            model["name"] = getName(customer)
-            model["link"] = createRegistrationLink(uuid)
-            model["accountNumber"] = customer.customerNumber
-            model["userName"] = customer.email
-            val subject: String = getSubject(customer.preferedLanguage)!!
-            val email: String = customer.email
-            val template: String = getMailTemplate(customer.preferedLanguage,"registrationActivation")
-            mailService.sendMail(email, subject, template, model)
-        } catch (e: Exception) {
+            mailService.sendMail(email, subject, template, props)
+        }catch (e: Exception) {
             when(e) {
                 is MessagingException,  is MailException ->{
+                    e.printStackTrace()
                     logger.error(e.localizedMessage)
                     throw SendMailException("Fail sending registration mail", e)
                 }
@@ -90,28 +119,20 @@ class SignupService @Autowired constructor(
         }
     }
 
-    private fun getName(customer: Customer):String {
-        val name = StringBuilder()
-
-        getLocalizedTitle(customer.preferedLanguage, customer.title.elKey)?.let {
-            name.append(it)
-        } ?: name.append(customer.title.name)
-
-        return name.append(" ")
-            .append(customer.firstName)
-            .append(" ")
-            .append(customer.lastName)
-            .toString()
-    }
-
-    private fun getSubject(locale:String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage("registration.checkDataText")
-
-    private fun getLocalizedTitle(locale:String, titleKey:String):String? = messageUtil(locale, "com.sicuro.i18n.application").getMessage(titleKey)
+    private fun getSubject(locale:String, label:String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage(label)
 
     private fun createRegistrationLink(activationUuid: String): String {
         return StringBuilder()
             .append(hostName)
-            .append("/activateaccount.jsf?uuid=")
+            .append("/activateaccount?uuid=")
+            .append(activationUuid)
+            .toString()
+    }
+
+    private fun createResetpasswordLink(activationUuid: String): String {
+        return StringBuilder()
+            .append(hostName)
+            .append("/resetpassword?uuid=")
             .append(activationUuid)
             .toString()
     }
@@ -125,5 +146,4 @@ class SignupService @Autowired constructor(
     companion object {
         val logger = LoggerFactory.getLogger(SignupService::class.java)
     }
-
 }

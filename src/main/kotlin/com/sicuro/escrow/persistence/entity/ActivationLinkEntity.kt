@@ -1,5 +1,6 @@
 package com.sicuro.escrow.persistence.entity
 
+import com.sicuro.escrow.model.LinkType
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -14,17 +15,15 @@ class ActivationLinkEntity constructor(
     @Id
     var uuid: String,
 
-    /**
-     * states if link is still active;
-     */
+    @Enumerated(EnumType.STRING)
+    @Column(name="dtype")
+    var type: LinkType,
+
     var active: Boolean = false,
 
-    /**
-     * Customer ID
-     */
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id")
-    var customer: CustomerEntity,
+    @JoinColumn(name = "user_id")
+    var user: UserEntity,
 
     @CreatedDate
     @Column(name = "created", nullable = false, insertable = true, updatable = false)
@@ -38,8 +37,9 @@ class ActivationLinkEntity constructor(
     override fun toString(): String {
         return "ActivationLinkBo{" +
             "uuid='" + uuid +
+            ", type='" + type +
             ", active=" + active +
-            ", customer=" + customer +
+            ", user=" + user +
             ", created="+ created.toString()+
             ", lastModified="+ lastModified.toString()+
             "}"

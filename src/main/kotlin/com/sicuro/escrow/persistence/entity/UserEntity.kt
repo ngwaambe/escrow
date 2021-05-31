@@ -41,6 +41,9 @@ data class UserEntity(
     @Column(name = "status", nullable = false)
     var status: BaseStatus,
 
+    @Column(name = "contact_id", nullable = false)
+    var customerId: Long,
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.REMOVE])
     @JoinTable(
         name = "user_roles",
@@ -81,4 +84,6 @@ data class UserEntity(
     @LastModifiedDate
     @Column(name = "last_modified", nullable = false, insertable = true, updatable = true)
     var lastModified: OffsetDateTime? = null
-)
+) {
+     fun hasSecurityQuestion() = securityQuestion != null && securityQuestionAnswer != null
+}

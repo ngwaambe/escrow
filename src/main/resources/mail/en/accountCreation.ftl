@@ -25,15 +25,13 @@ Account Number: ${accountNumber}
 <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
  Dear ${name},
  <br/>
- you recently requested a reset of your password for your Sicuro.com account.<br/>
+ a sicuro.com account has been created for you.<br/>
 </p>
 <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
- The new temporary password for your account is: <strong>${password}</strong><br/>
+ The temporary password for your account is: <strong>${password}</strong><br/>
  <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
- Please login with this temporary password to access your account and sicuro services.
- Subsequently change your password after login by clicking on the link
- <a href="${link}"><b>change password</b></a>
- in your profile page
+ Please login with this temporary password to access your account.
+ Subsequently change your password after login in your profile page
  </p>
 
 <h4  style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif;padding: 0px;  line-height: 22px; border-bottom:2px solid #ddd; margin:10px;">Your sicuro.com Team</h4>

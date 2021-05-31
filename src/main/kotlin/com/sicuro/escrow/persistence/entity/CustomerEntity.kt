@@ -45,7 +45,7 @@ data class CustomerEntity @JvmOverloads constructor(
     var email: String,
 
     @Column(name = "prefered_language_iso", nullable = false)
-    var preferedLanguage: String,
+    var language: String,
 
     @Column(name = "apply_vat", nullable = false)
     var applyVat: Boolean = false,

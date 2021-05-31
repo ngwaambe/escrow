@@ -30,7 +30,7 @@ class TestMysqlContainer {
                     .withInitScript("db/1_create_schema.sql")
 
                 container.start()
-
+                log.info("mysql:jdbc:{}", container.getJdbcUrl())
                 System.setProperty('spring.datasource.url', container.getJdbcUrl())
                 System.setProperty('spring.datasource.password', container.getPassword())
                 System.setProperty('spring.datasource.username', container.getUsername())

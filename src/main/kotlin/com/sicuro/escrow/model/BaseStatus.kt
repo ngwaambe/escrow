@@ -6,34 +6,33 @@ package com.sicuro.escrow.model
  * @since 1.0.0
  * @author engwaambe
  */
-enum class BaseStatus(var statusName: String, var messageKey: String) {
+enum class BaseStatus() {
     /**
      * Business object is active. Has taken part in a business activity within a period defined by system adminstrator
      * or active because certain rules or conditions have been fullfilled.
      */
-    active("Active", "baseStatus.active"),
+    active,
 
     /**
      * Business object is not active. Has not taken part in a business activity within a period defined by system
      * adminstrator or not active because certain rules or conditions have not been fullfilled.
      */
-    inactive("Inactive", "baseStatus.active"),
+    inactive,
+
+    /**
+     * Status user entity has when password change is pending
+     */
+    temporary_password,
 
     /**
      * Business object or entity has been deactivated. Can not take part in any business activity.
      */
-    deactivated("Deactivated", "baseStatus.active"),
+    deactivated,
 
     /**
      * Business object or entity has been fictively deleted from system. Is considered deleted but is still available in
      * the system storage system.
      */
-    fictive_deleted("Fictive deleted", "baseStatus.active"),
-
-    /**
-     * Business object or entity has been deleted from system and storage system. No object should ever have this state
-     * since no object in this state should be found in the storage system.
-     */
-    really_deleted("Really deleted", "baseStatus.active");
+    fictive_deleted;
 
 }

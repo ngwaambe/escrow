@@ -25,13 +25,13 @@ Número de cuenta: ${accountNumber}
 <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
  Estimado/a ${name},
  <br/>
- Has pedido recientemente restablecer tu contraseña en tu cuenta de sicuro.com.<br/>
+ se ha creado una cuenta sicuro.com para ti.<br/>
 </p>
 <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
  La nueva contraseña temporal para tu cuenta es: <strong>${password}</strong><br/>
  <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
- Por favor accede con esta contraseña a tu cuenta y servicios de sicuro.com. Te recomendamos que acto seguido
- <a href="${link}"><b>cambies la contraseña</b></a> desde tu menú de perfil.
+  Inicie sesión con esta contraseña temporal para acceder a su cuenta.
+  Posteriormente, cambie su contraseña después de iniciar sesión en su página de perfil.
  </p>
 
 <h4  class="header" style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif;padding: 0px;  line-height: 22px; border-bottom:2px solid #ddd; margin:10px;">Tu equipo de sicuro.com</h4>

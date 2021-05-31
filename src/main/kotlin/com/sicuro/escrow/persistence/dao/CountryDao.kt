@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface CountryDao: JpaRepository<CountryEntity, Long> {
 
-    fun findByIso(iso:String): CountryEntity;
+    fun findByIso(iso:String): CountryEntity?
 }

@@ -28,11 +28,11 @@ Account Numero: ${accountNumber}
  la tua password è stata reimpostata con successo.<br/>
 </p>
 <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
- La password provvisoria per il tuo account è la seguente: <strong>${password}</strong>
+ La password temporanea per il tuo account è: <strong>${password}</strong>
  <br/>
  <p style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif; font-size: 13px; line-height: 1.28; text-align: left; color: #555; margin:10px;">
- Utilizza subito la tua password provvisoria per accedere ai servizi di sicuro.com. Dopo aver effettuato il login, potrai accedere al tuo profilo e
- <a href="${link}"><b>modificare la password</b></a>
+  Effettua il login con questa password temporanea per accedere al tuo account.
+  Successivamente cambia la tua password dopo aver effettuato il login nella pagina del tuo profilo.
  </p>
 
 <h4  style="font-family: 'lucida grande',Tahoma,Geneva,sans-serif;padding: 0px;  line-height: 22px; border-bottom:2px solid #ddd; margin:10px;">Il Team di sicuro.com</h4>

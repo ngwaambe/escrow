@@ -1,31 +1,32 @@
 package com.sicuro.escrow.controller
 
-import com.sicuro.escrow.model.ChangeEmailRequest
-import com.sicuro.escrow.model.ChangePasswordRequest
-import com.sicuro.escrow.model.Customer
-import com.sicuro.escrow.model.CustomerDetailRequest
+import com.sicuro.escrow.model.*
 import com.sicuro.escrow.service.CustomerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/customers")
 class CustomerController @Autowired constructor(val customerService: CustomerService) {
 
+
     @GetMapping("/{customerId}")
-    fun getCustomer(@PathVariable("customerId")customerId: Long):Customer {
-        return customerService.getCustomer(customerId);
-    }
+    fun getCustomer(@PathVariable("customerId")customerId: Long) = customerService.getCustomer(customerId)
+
+    @GetMapping
+    fun getCustomers(@RequestBody @Valid filter: CustomerFilterRequest) = customerService.getCustomers(filter)
+
+    @PostMapping
+    fun createCustomwer(@RequestBody @Valid createRequest: CustomerCreateRequest) = customerService.createCustomer(createRequest)
 
     @PutMapping("/{customerId}")
-    fun updateCustomer(@PathVariable("customerId")customerId: Long,
-                       @RequestBody request: CustomerDetailRequest) = customerService.updateCustomer(customerId, request)
+    fun updateCustomer(@PathVariable("customerId")customerId: Long, @RequestBody request: CustomerDetailRequest) = customerService.updateCustomer(customerId, request)
 
-    @PutMapping("/{customerId}")
-    fun changePassword(@PathVariable("customerId")customerId: Long,
-                       @RequestBody request: ChangePasswordRequest) = customerService.changePassword(customerId, request)
+    @PutMapping("/{customerId}/changepassword")
+    fun changePassword(@PathVariable("customerId")customerId: Long, @RequestBody request: ChangePasswordRequest) = customerService.changePassword(customerId, request)
 
-    @PutMapping("/{customerId}")
-    fun changeEmail(@PathVariable("customerId")customerId:Long,
-                    @RequestBody request: ChangeEmailRequest) = customerService.changeEmail(customerId, request)
+    @PutMapping("/{customerId}/changeemail")
+    fun changeEmail(@PathVariable("customerId")customerId:Long, @RequestBody request: ChangeEmailRequest) = customerService.changeEmail(customerId, request)
+
 }

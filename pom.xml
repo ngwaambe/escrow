@@ -244,6 +244,20 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.icegreen</groupId>
+			<artifactId>greenmail</artifactId>
+			<version>1.6.3</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wix</groupId>
+			<artifactId>wix-embedded-mysql</artifactId>
+			<version>4.6.1</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

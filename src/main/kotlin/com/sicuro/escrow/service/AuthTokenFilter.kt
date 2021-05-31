@@ -12,8 +12,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class AuthTokenFilter  constructor(val jwtUtils: JwtUtils,
-                                             val userDetailService: UserDetailsServiceImpl): OncePerRequestFilter() {
+class AuthTokenFilter  constructor(val jwtUtils: JwtUtils, val userDetailService: UserDetailsServiceImpl): OncePerRequestFilter() {
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest,

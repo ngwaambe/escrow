@@ -2,6 +2,7 @@ package com.sicuro.escrow.persistence.entity
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.OffsetDateTime
 import javax.persistence.*
 
@@ -14,6 +15,7 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "address")
+@EntityListeners(AuditingEntityListener::class)
 data class AddressEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

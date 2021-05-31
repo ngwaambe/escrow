@@ -13,12 +13,11 @@ class RequestHelper {
         return createClient(params.port).get(
             path: params.path,
             query: params.query,
-            headers: createHeaderMap(params.uuid, params.headers),
+            headers: createHeaderMap(params.token, params.headers),
         )
     }
 
     def post(Map params) {
-        log.info("===============>$params")
         return createClient(params.port).post(
             path: params.path,
             query: params.query,
@@ -67,13 +66,10 @@ class RequestHelper {
                     "Accept"      : "application/json; text/plain",
                     "Content-Type": "application/json;charset=utf-8"
             ]
-
         return headers + (other ?: [:])
     }
 
     private def createClient(int port) {
-        log.info("=====>port: $port")
-
         def client = new RESTClient("http://localhost:$port")
         def redirectStrategy = [
             getRedirect : { request, response, context -> null},
