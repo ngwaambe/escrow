@@ -1,0 +1,11 @@
+${name},
+<br\>
+<br\>
+${email}
+<br\>
+<br\>
+${subject}
+<br\>
+<p>
+${message}
+</p>

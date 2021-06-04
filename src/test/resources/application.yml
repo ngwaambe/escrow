@@ -1,0 +1,76 @@
+
+spring:
+  application.name: 'sicuro-escrow'
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    continueOnError: false
+    url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
+    username: test
+    password: test
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-test-query: 'SELECT 1'
+      validation-timeout: 3000
+      max-lifetime: 250000
+      idle-timeout: 45000
+
+  freemarker:
+    checkTemplateLocation: false
+    template-loader-path: classpath:mail
+    prefer-file-system-access: false
+    charset: utf-8
+    suffix: ftl
+
+  jpa:
+    open-in-view: false
+    show-sql: false
+    generateDdl: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+  flyway:
+    locations: classpath:migration
+    schemas: sicuro
+    baseline-on-migrate: true
+
+  mail:
+    host: 127.0.0.1
+    port: 2530
+    username: noreply@sicuro.com
+    password: S2ic013uro
+    properties:
+      mail.smtp:
+        auth: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+        starttls.enable: true
+        ssl:
+          protocols: TLSv1.2
+
+mail:
+    sender.address: sicuro.com GmbH(noreply)<noreply@sicuro.com>
+
+host.address: http://localhost:8080/
+
+activationlink:
+  expiration: 24
+
+security:
+  jwt:
+    public-key: classpath:public.txt
+    secret: bezKoderSecretKey
+    expirationMs: 86400000
+    refreshExpirationMs: 86400000
+
+server:
+  servlet:
+    port: 3000
+    session.timeout: 30m
+    context-path: '/'
+  error.whitelabel.enabled: false
+
+server.port: 8080

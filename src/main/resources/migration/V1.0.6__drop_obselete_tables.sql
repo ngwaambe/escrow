@@ -1,1 +1,1 @@
-drop table transaction_extra_data;
+DROP TABLE transaction_extra_data;

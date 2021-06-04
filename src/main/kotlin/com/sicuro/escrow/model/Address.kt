@@ -15,8 +15,7 @@ data class Address(
     val city: @NotNull String,
     val region: String?,
     val countryIso: @NotNull @Size(max = 2, min = 2) String,
-    val created: @Past OffsetDateTime?,
-    val lastModified: @Past OffsetDateTime?
+    val phoneNumber: String
 ) {
     fun convert() = AddressEntity(
         id,
@@ -27,8 +26,7 @@ data class Address(
         region,
         city,
         countryIso,
-        created = OffsetDateTime.now(),
-        lastModified = OffsetDateTime.now());
+        phoneNumber);
 
     companion object factory {
         fun convert(address: AddressEntity) = Address(
@@ -40,7 +38,6 @@ data class Address(
             address.city,
             address.region,
             address.countryIso,
-            address.created,
-            address.lastModified);
+            address.phoneNumber);
     }
 }
