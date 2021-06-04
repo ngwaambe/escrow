@@ -8,8 +8,8 @@ pipeline {
     agent any
 
     tools {
-        jdk '11.0.11'
-        maven 'latest' // latest
+        jdk 'openjdk-11'
+        maven 'M3' // latest
     }
 
     stages {
