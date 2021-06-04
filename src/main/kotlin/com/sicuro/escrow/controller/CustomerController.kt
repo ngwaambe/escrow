@@ -21,12 +21,12 @@ class CustomerController @Autowired constructor(val customerService: CustomerSer
     fun createCustomwer(@RequestBody @Valid createRequest: CustomerCreateRequest) = customerService.createCustomer(createRequest)
 
     @PutMapping("/{customerId}")
-    fun updateCustomer(@PathVariable("customerId")customerId: Long, @RequestBody request: CustomerDetailRequest) = customerService.updateCustomer(customerId, request)
+    fun updateCustomer(@PathVariable("customerId")customerId: Long, @RequestBody @Valid   request: CustomerDetailRequest) = customerService.updateCustomer(customerId, request)
 
     @PutMapping("/{customerId}/changepassword")
-    fun changePassword(@PathVariable("customerId")customerId: Long, @RequestBody request: ChangePasswordRequest) = customerService.changePassword(customerId, request)
+    fun changePassword(@PathVariable("customerId")customerId: Long, @RequestBody @Valid  request: ChangePasswordRequest) = customerService.changePassword(customerId, request)
 
     @PutMapping("/{customerId}/changeemail")
-    fun changeEmail(@PathVariable("customerId")customerId:Long, @RequestBody request: ChangeEmailRequest) = customerService.changeEmail(customerId, request)
+    fun changeEmail(@PathVariable("customerId")customerId:Long, @RequestBody @Valid  request: ChangeEmailRequest) = customerService.changeEmail(customerId, request)
 
 }

@@ -1,5 +1,6 @@
 package com.sicuro.escrow.model
 
+import javax.validation.Valid
 import javax.validation.constraints.*
 
 data class Organisation(
@@ -54,7 +55,8 @@ data class CustomerDetailRequest(
     @get:NotEmpty
     val lastName:String,
 
-    val organisation: Organisation?
+    @get:Valid
+    val organisation: Organisation? = null
 )
 
 data class ChangePasswordRequest(

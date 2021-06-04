@@ -26,7 +26,8 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
         claims.subject = userdata.username
         claims.expiration = Date(Date().time.plus(expiration.toInt()))
         claims["customerId"] = userdata.customerId
-        claims["tempPwd"] = false
+        claims["tempPwd"] = userdata.temporaryPassword
+        claims["securityQuestion"] = userdata.securityQuestion
 
         return Jwts.builder()
             .setClaims(claims)

@@ -1,12 +1,12 @@
 package util.database
 
 import groovy.util.logging.Slf4j
-import org.spockframework.runtime.extension.AbstractAnnotationDrivenExtension
+import org.spockframework.runtime.extension.IAnnotationDrivenExtension
 import org.spockframework.runtime.extension.IGlobalExtension
 import org.spockframework.runtime.model.SpecInfo
 
 @Slf4j
-class MysqlExtension extends AbstractAnnotationDrivenExtension<NeedsMysql> implements IGlobalExtension{
+class ContainarizedMysqlExtension implements IAnnotationDrivenExtension<NeedsContainarizedMysql> , IGlobalExtension{
 
     static boolean started = false
 
@@ -14,7 +14,7 @@ class MysqlExtension extends AbstractAnnotationDrivenExtension<NeedsMysql> imple
     void start() {
     }
 
-    void visitSpecAnnotation(NeedsMysql annotation, SpecInfo spec) {
+    void visitSpecAnnotation(NeedsContainarizedMysql annotation, SpecInfo spec) {
         if (!started) {
             log.info("========================================> Starting Mysql")
             TestMysqlContainer.instance().start()

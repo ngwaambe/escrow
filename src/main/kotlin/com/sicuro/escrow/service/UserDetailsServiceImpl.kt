@@ -18,8 +18,8 @@ class MyUser(
     password: String,
     grantedAuthorities: HashSet<GrantedAuthority>,
     val customerId:Long,
-    val secret: Boolean,
-    val tempPwd: Boolean) : User(username, password, grantedAuthorities)
+    val securityQuestion: Boolean,
+    val temporaryPassword: Boolean) : User(username, password, grantedAuthorities)
 
 @Service
 class UserDetailsServiceImpl @Autowired constructor(val userDao: UserDao, val linkRepository: ActivationLinkRepository) : UserDetailsService {
