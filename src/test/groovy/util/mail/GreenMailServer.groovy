@@ -43,12 +43,8 @@ class GreenMailServer {
 
     void reset() {
         synchronized (this) {
-            if (!started) {
-                greenMail.reset()
-            } else {
-                greenMail.start()
-                started = true
-            }
+            greenMail.reset()
+            started = true
         }
     }
 
