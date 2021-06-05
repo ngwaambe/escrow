@@ -41,7 +41,7 @@ class GreenMailServer {
             log.debug("Stop Greenmail========================================> Stopping Greenmail")
             greenMail.stop()
             started = false
-            log.debug("Stop Greenmail========================================> Stopped Greenmail")
+            log.debug("Stop Greenmail========================================> Stopped Greenmail ")
         }
     }
 
