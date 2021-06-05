@@ -16,16 +16,20 @@ class EmbeddedMysqlExtension implements IAnnotationDrivenExtension<NeedsEmbedded
 
     void visitSpecAnnotation(NeedsEmbeddedMysql annotation, SpecInfo spec) {
         if (!started) {
-            log.info("========================================> Starting Mysql")
+            log.info("Start ========================================> Starting Mysql")
             TestEmbeddedMysql.instance().start()
             started = true
+            log.info("Start ========================================> Started Mysql")
         }
     }
 
     @Override
     void stop() {
         if (started) {
+            log.info("Stop ========================================> Stopping Mysql")
             TestEmbeddedMysql.instance().stop()
+            started = false
+            log.info("Stop ========================================> Stopped Mysql")
         }
     }
 }
