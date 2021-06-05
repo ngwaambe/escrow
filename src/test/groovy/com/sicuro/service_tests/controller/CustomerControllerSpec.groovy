@@ -13,6 +13,7 @@ import util.RequestHelper
 import util.applicationcontext.TestContextConfiguration
 import util.database.DatabaseHelper
 import util.database.NeedsEmbeddedMysql
+import util.mail.GreenMailServer
 import util.mail.NeedGreenMail
 
 @NeedsEmbeddedMysql
@@ -34,6 +35,10 @@ class CustomerControllerSpec extends Specification {
     def setup() {
         databaseHelper.cleanDatabase()
         signupAndActivateAccount(username, password)
+    }
+
+    def cleanup() {
+        databaseHelper.cleanDatabase()
     }
 
     def "get customer,  happy path"() {
