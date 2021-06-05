@@ -21,6 +21,7 @@ class GreenMailServer {
     void start() {
         synchronized (this) {
             if (!started) {
+                log.debug("Start Greenmail========================================> Starting Greenmail")
                 ServerSetup serverSetup = new ServerSetup(2530, null,"smtp")
                 serverSetup.setServerStartupTimeout(20000)
                 serverSetup.setReadTimeout(5000)
@@ -30,21 +31,24 @@ class GreenMailServer {
                 greenMail.setUser("noreply@sicuro.com", "S2ic013uro")
                 greenMail.start()
                 started = true
+                log.debug("Start Greenmail========================================> Started Greenmail")
             }
         }
     }
 
     void stop() {
         synchronized (this) {
+            log.debug("Stop Greenmail========================================> Stopping Greenmail")
             greenMail.stop()
             started = false
+            log.debug("Stop Greenmail========================================> Stopped Greenmail")
         }
     }
 
     void reset() {
         synchronized (this) {
-            greenMail.reset()
-            started = true
+            stop()
+            start()
         }
     }
 

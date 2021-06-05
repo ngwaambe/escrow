@@ -58,6 +58,7 @@ class AutControllerSpec extends Specification{
 
         expect:
         countryEntity != null
+        greenMail.getReceivedMessages().size() == 0
 
         when: "register account"
         def response =  requestHelper.post(
