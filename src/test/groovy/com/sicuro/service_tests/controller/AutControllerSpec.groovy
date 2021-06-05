@@ -42,6 +42,7 @@ class AutControllerSpec extends Specification{
     }
 
     def cleanup() {
+        databaseHelper.cleanDatabase()
         GreenMailServer.instance().reset()
     }
 
