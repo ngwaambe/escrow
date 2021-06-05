@@ -2,6 +2,7 @@ package com.sicuro.escrow.model
 
 import javax.validation.Valid
 import javax.validation.constraints.*
+import kotlin.math.min
 
 data class Organisation(
     @get:NotEmpty
@@ -61,7 +62,7 @@ data class CustomerDetailRequest(
 
 data class ChangePasswordRequest(
     @get:NotEmpty
-    @get:Min(8)
+    @get:Size(min=8)
     val password:String
 )
 
