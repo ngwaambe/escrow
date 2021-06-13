@@ -51,6 +51,7 @@ spring:
         ssl:
           protocols: TLSv1.2
 
+logging.config: 'classpath:logback-test.xml'
 mail:
     sender.address: sicuro.com GmbH(noreply)<noreply@sicuro.com>
 

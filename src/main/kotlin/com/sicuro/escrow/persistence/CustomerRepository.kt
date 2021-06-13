@@ -4,7 +4,6 @@ import com.sicuro.escrow.exception.ObjectNotFoundException
 import com.sicuro.escrow.model.*
 import com.sicuro.escrow.persistence.dao.AddressDao
 import com.sicuro.escrow.persistence.dao.CustomerDao
-import com.sicuro.escrow.persistence.entity.AddressEntity
 import com.sicuro.escrow.persistence.entity.CustomerEntity
 import com.sicuro.escrow.util.PaginationUtil
 import com.sicuro.escrow.util.security.CustomKeyGeneratorFactoryService
@@ -31,8 +30,8 @@ class CustomerRepository(
         val customer = Customer(
             customerNumber,
             registration.contact.title,
-            registration.contact.firstName,
-            registration.contact.lastName,
+            registration.contact.firstname,
+            registration.contact.lastname,
             registration.contact.language,
             registration.contact.email,
             registration.organisation?.name,
@@ -48,8 +47,8 @@ class CustomerRepository(
             null,
             customerNumber,
             createRequest.contact.title,
-            createRequest.contact.firstName,
-            createRequest.contact.lastName,
+            createRequest.contact.firstname,
+            createRequest.contact.lastname,
             createRequest.contact.title.gender,
             createRequest.contact.email,
             createRequest.contact.language,
@@ -75,8 +74,8 @@ class CustomerRepository(
 
         val newEntity = customer.convert()
         val entity = oldEntity.copy(
-            firstName = newEntity.firstName,
-            lastName = newEntity.lastName,
+            firstname = newEntity.firstname,
+            lastname = newEntity.lastname,
             title = newEntity.title,
             gender = newEntity.title.gender,
             language = newEntity.language,
@@ -88,34 +87,44 @@ class CustomerRepository(
     }
 
     @Transactional
-    fun updateAddress(address: Address, customer: Customer, resolveVat: Boolean = false): Address {
-        val entity:AddressEntity;
-        if (address.id != null){
-            val oldEntity = addressDao.findById(address.id).orElseThrow{
-                throw ObjectNotFoundException("Address does not exist")
+    fun updateAddress(customerId: Long, address: Address): Customer {
+        val customerEntity = customerDao.findById(customerId).orElseThrow { ObjectNotFoundException("Customer object does not exist") }
+        return address.id?.let { id ->
+            if (id != customerEntity.address?.id) {
+                throw ObjectNotFoundException("Address does not belong to customer")
             }
-            entity = oldEntity.copy(
+            val updatedAddressEntity = customerEntity.address!!.copy(
                 street = address.street,
                 streetExtension = address.streetExtension,
                 houseNumber = address.houseNumber,
                 city = address.city,
                 postalCode = address.postalCode,
                 region = address.region,
-                phoneNumber = address.phoneNumber,
-                countryIso = address.countryIso
+                countryIso = address.countryIso,
+                phoneNumber = address.phoneNumber
             )
-        } else {
-            entity = address.convert()
+            addressDao.saveAndFlush(updatedAddressEntity)
+            getCustomer(customerId)
+        } ?: run {
+            val updatedAddress = if (customerEntity.address != null) {
+                address.copy(id = customerEntity.address?.id!!)
+            } else address.copy()
+
+            val addressEntity = addressDao.saveAndFlush(updatedAddress.convert())
+            customerEntity.address = addressEntity
+            Customer.convert(customerDao.saveAndFlush(customerEntity))
         }
-        val updatedAddress = Address.convert(addressDao.save(entity))
-        val updatedCustomer = customer.copy(address = updatedAddress)
+    }
 
-        val updatedCustomerWithVat = if (resolveVat) {
-            setCustomerValueAddedTax(updatedCustomer, updatedAddress.countryIso)
-        } else  updatedCustomer.copy()
-
-        customerDao.save(updatedCustomerWithVat.convert())
-        return updatedAddress
+    @Transactional
+    fun resolveCustomerVat(customer: Customer): Customer {
+        val customerEntity = customerDao.findById(customer.id!!).orElseThrow {
+            throw ObjectNotFoundException("Customer does not exist")
+        }
+        return customerEntity.address?.let {
+          val updatedEntity =  customerEntity.copy(applyVat = countryRepository.shouldVatBeApplied(it.countryIso))
+          Customer.convert(customerDao.saveAndFlush(updatedEntity))
+        } ?: customer
     }
 
     @Transactional
@@ -172,56 +181,58 @@ class CustomerRepository(
 
     private fun convert(customers:List<CustomerEntity>) = customers.map { Customer.convert(it) }.toList()
 
-    private class FilterSpecification(val filter:CustomerFilterRequest): Specification<CustomerEntity> {
+    private class FilterSpecification(val filter: CustomerFilterRequest) : Specification<CustomerEntity> {
 
         override fun toPredicate(root: Root<CustomerEntity>, query: CriteriaQuery<*>, cb: CriteriaBuilder): Predicate? {
             var predicate: Predicate? = null;
             if (!filter.customerNr.isNullOrBlank()) {
-                predicate = cb.equal (root.get<String>(""), filter.customerNr)
+                predicate = cb.equal(root.get<String>("customerNumber"), filter.customerNr)
             }
+
             if (!filter.firstname.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.firstname))
-                } ?: cb.equal(root.get<String>(""), filter.firstname)
+                predicate = predicate?.let {
+                    cb.and(it, cb.like(cb.lower(root.get("firstname")), append("%",filter.firstname.toLowerCase(),"%")))
+                } ?: cb.like(cb.lower(root.get("firstname")), append("%",filter.firstname.toLowerCase(),"%"))
             }
 
             if (!filter.lastname.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.lastname))
-                } ?: cb.equal(root.get<String>(""), filter.lastname)
+                predicate = predicate?.let {
+                     cb.and(it, cb.like(cb.lower(root.get<String>("lastname")), append("%",filter.lastname.toLowerCase(),"%")))
+                } ?: cb.like(cb.lower(root.get<String>("lastname")), append("%",filter.lastname.toLowerCase(),"%"))
             }
 
             if (!filter.email.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.email))
-                } ?: cb.equal(root.get<String>(""), filter.email)
+                predicate = predicate?.let {
+                    cb.and(it, cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase()))
+                } ?: cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase())
             }
-
+            //TODO remove not available in customer pojo
             if (filter.status != null) {
                 predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.status))
-                } ?: cb.equal(root.get<String>(""), filter.status)
+                     cb.and(it, cb.equal(root.get<BaseStatus>("status"), filter.status))
+                } ?: cb.equal(root.get<BaseStatus>("status"), filter.status)
             }
 
             if (!filter.city.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.city))
-                } ?: cb.equal(root.get<String>(""), filter.city)
+                predicate = predicate?.let {
+                    cb.and(it, cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.toLowerCase()))
+                } ?: cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.toLowerCase())
             }
 
             if (!filter.country.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.country))
-                } ?: cb.equal(root.get<String>(""), filter.country)
+                predicate = predicate?.let {
+                    cb.and(it, cb.equal(root.get<Address>("address").get<String>("countryIso"), filter.country))
+                } ?: cb.equal(root.get<Address>("address").get<String>("countryIso"), filter.country)
             }
 
             if (!filter.language.isNullOrBlank()) {
-                predicate = predicate?.isNotNull?.let {
-                    cb.and(it, cb.equal(root.get<String>(""), filter.language))
-                } ?: cb.equal(root.get<String>(""), filter.language)
+                predicate = predicate?.let {
+                    cb.and(it, cb.equal(cb.lower(root.get<String>("language")), filter.language.toLowerCase()))
+                } ?: cb.equal(cb.lower(root.get<String>("language")), filter.language.toLowerCase())
             }
             return predicate
         }
 
-        }
+        fun append(prefix:String, data:String, suffix:String ):String = "$prefix$data$suffix"
+    }
 }

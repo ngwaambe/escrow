@@ -13,7 +13,7 @@ class PaginationUtil {
             return if(!sortingField.isNullOrEmpty()){
                 Sort.by(sortDirection(sortOrder),  sortingField)
             } else {
-                Sort.by(Sort.Direction.DESC, "lastModified", "lastCreationDate")
+                Sort.by(Sort.Direction.DESC, "lastModified", "created")
             }
         }
 

@@ -57,9 +57,9 @@ class SignupService @Autowired constructor(
 
     @Transactional
     fun completeSignup(customerId: Long, completSignupRequest: CompleteSignupRequest) {
-        val customer = customerRepository.getCustomer(customerId)
-        customerRepository.updateAddress(completSignupRequest.address, customer, true)
-        userRepository.updateUserSequrityQuestion(completSignupRequest.securityQuestion, customer.email)
+        val customer = customerRepository.updateAddress(customerId, completSignupRequest.address)
+        val updateCustomer = customerRepository.resolveCustomerVat(customer)
+        userRepository.updateUserSequrityQuestion(completSignupRequest.securityQuestion, updateCustomer.email)
     }
 
     @Transactional
