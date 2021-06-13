@@ -162,10 +162,10 @@ class AutControllerSpec extends Specification{
         'contact.title'          | 'email@tx.com' | 'password' | null  | 'en'     | 'Peter'   | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
         'contact.language'       | 'email@tx.com' | 'password' | 'Mr'  | ''       | 'Peter'   | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
         'contact.language'       | 'email@tx.com' | 'password' | 'Mr'  | null     | 'Peter'   | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
-        'contact.firstName'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | ''        | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
-        'contact.firstName'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | null      | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
-        'contact.lastName'       | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | ''       | [name: 'sicuro', taxNumber: '213415645']
-        'contact.lastName'       | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | null     | [name: 'sicuro', taxNumber: '213415645']
+        'contact.firstname'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | ''        | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
+        'contact.firstname'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | null      | 'Pan'    | [name: 'sicuro', taxNumber: '213415645']
+        'contact.lastname'       | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | ''       | [name: 'sicuro', taxNumber: '213415645']
+        'contact.lastname'       | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | null     | [name: 'sicuro', taxNumber: '213415645']
         'organisation.name'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | 'Pan'    | [name: '', taxNumber: '213415645']
         'organisation.name'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | 'Pan'    | [name: null, taxNumber: '213415645']
         'organisation.name'      | 'email@tx.com' | 'password' | 'Mr'  | 'en'     | 'Peter'   | 'Pan'    | [taxNumber: '213415645']
@@ -194,8 +194,8 @@ class AutControllerSpec extends Specification{
 
         def contact = (title != null ? [title: title] : [:]) +
                 (language != null ? [language: language] : [:]) +
-                (firstname != null ? [firstName: firstname] : [:]) +
-                (lastname != null ? [lastName: lastname] : [:]) +
+                (firstname != null ? [firstname: firstname] : [:]) +
+                (lastname != null ? [lastname: lastname] : [:]) +
                 (username != null ? [email: username] : [:]) +
                 (password != null ? [password: password] : [:] )
         return JsonOutput.toJson(

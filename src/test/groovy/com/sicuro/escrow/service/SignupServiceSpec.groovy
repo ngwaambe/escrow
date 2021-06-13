@@ -201,24 +201,43 @@ class SignupServiceSpec extends Specification{
         customerRepository.getCustomer(customer.id) >> customer
 
         then:
-        customerRepository.updateAddress(_, _, _) >> { arguments ->
-            def _address = arguments[0]
+        customerRepository.updateAddress(_, _) >> { arguments ->
+            def _customer = arguments[0]
+            _customer == customer.id
+
+            def _address = arguments[1]
             _address.street == address.street
             _address.houseNumber == address.houseNumber
             _address.streetExtension == address.streetExtension
-            _address.postalCode  == address.postalCode
-            _address.city   == address.city
-            _address.region  == address.region
+            _address.postalCode == address.postalCode
+            _address.city == address.city
+            _address.region == address.region
             _address.countryIso == address.countryIso
             _address.phoneNumber == address.phoneNumber
-
-            def _customer = arguments[1]
-            _customer == customer.id
 
             def _resolveVat = arguments[2]
             _resolveVat == true
 
-            return _address
+            return new Customer(
+                customer.id,
+                customer.customerNumber,
+                customer.title,
+                customer.firstname,
+                customer.lastname,
+                customer.gender,
+                customer.email,
+                customer.language,
+                _address,
+                customer.organisation,
+                customer.taxNumber,
+                customer.applyVat,
+                customer.partnerId,
+                customer.identityNumber)
+        }
+
+        then:
+        customerRepository.resolveCustomerVat(_ ) >> { arguments ->
+            return arguments[0]
         }
 
         then:
@@ -252,7 +271,7 @@ class SignupServiceSpec extends Specification{
         then:
         mailService.sendMail(_, _, _, _) >> { arguments ->
             arguments[0] == 'test@email.com'
-            arguments[1] == "Mr. ${customer.firstName} ${customer.lastName}"
+            arguments[1] == "Mr. ${customer.firstname} ${customer.lastname}"
             arguments[2] == "/${customer.language}/initiateResetPassword.ftl"
 
             def params = arguments[3]
@@ -303,7 +322,7 @@ class SignupServiceSpec extends Specification{
         mailService.sendMail(_, _, _, _) >> { arguments ->
 
             arguments[0] == 'test@email.com'
-            arguments[1] == "Mr. ${customer.firstName} ${customer.lastName}"
+            arguments[1] == "Mr. ${customer.firstname} ${customer.lastname}"
             arguments[2] == "/${customer.language}/resetPassword.ftl"
 
             def params = arguments[3]

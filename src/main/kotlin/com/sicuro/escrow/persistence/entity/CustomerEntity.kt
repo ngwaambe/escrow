@@ -32,10 +32,10 @@ data class CustomerEntity @JvmOverloads constructor(
     var title: Title,
 
     @Column(name = "first_name", nullable = false)
-    var firstName: String,
+    var firstname: String,
 
     @Column(name = "last_name", nullable = false)
-    var lastName: String,
+    var lastname: String,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")

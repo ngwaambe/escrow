@@ -57,9 +57,9 @@ class SignupService @Autowired constructor(
 
     @Transactional
     fun completeSignup(customerId: Long, completSignupRequest: CompleteSignupRequest) {
-        val customer = customerRepository.getCustomer(customerId)
-        customerRepository.updateAddress(completSignupRequest.address, customer, true)
-        userRepository.updateUserSequrityQuestion(completSignupRequest.securityQuestion, customer.email)
+        val customer = customerRepository.updateAddress(customerId, completSignupRequest.address)
+        val updateCustomer = customerRepository.resolveCustomerVat(customer)
+        userRepository.updateUserSequrityQuestion(completSignupRequest.securityQuestion, updateCustomer.email)
     }
 
     @Transactional
@@ -89,7 +89,7 @@ class SignupService @Autowired constructor(
 
     fun resetPassword(activationUuid: String) {
         val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD)
-        val newpassword = userRepository.resetPassword(link.user.username)
+        val password = userRepository.resetPassword(link.user.username)
         val customer = customerRepository.getCustomerByEmail(link.user.username)
 
         val props = mutableMapOf<String, String>()
@@ -97,7 +97,7 @@ class SignupService @Autowired constructor(
         props["link"] = StringBuilder().append(hostName).append("/authenticate").toString()
         props["accountNumber"] = customer.customerNumber
         props["userName"] = customer.email
-        props["password"] = newpassword
+        props["password"] = password
         val subject: String = getSubject(customer.language, "ResetPasswordRequest")!!
         val email: String = customer.email
         val template: String = getMailTemplate(customer.language, "resetPassword")
@@ -110,7 +110,6 @@ class SignupService @Autowired constructor(
         }catch (e: Exception) {
             when(e) {
                 is MessagingException,  is MailException ->{
-                    e.printStackTrace()
                     logger.error(e.localizedMessage)
                     throw SendMailException("Fail sending registration mail", e)
                 }

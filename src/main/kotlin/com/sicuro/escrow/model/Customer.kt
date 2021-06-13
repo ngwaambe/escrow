@@ -9,9 +9,9 @@ data class Customer constructor(
 
     val title: Title,
 
-    val firstName: String,
+    val firstname: String,
 
-    val lastName: String,
+    val lastname: String,
 
     val gender: Gender,
 
@@ -55,8 +55,8 @@ data class Customer constructor(
             id,
             customerNumber,
             title,
-            firstName,
-            lastName,
+            firstname,
+            lastname,
             gender,
             email,
             language,
@@ -80,8 +80,8 @@ data class Customer constructor(
                 obj.id,
                 obj.customerNumber,
                 obj.title,
-                obj.firstName,
-                obj.lastName,
+                obj.firstname,
+                obj.lastname,
                 obj.gender,
                 obj.email,
                 obj.language,

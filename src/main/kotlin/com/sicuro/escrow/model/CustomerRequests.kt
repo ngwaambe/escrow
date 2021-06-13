@@ -15,14 +15,15 @@ data class Organisation(
 data class Contact(
     @get:NotNull
     val title:Title,
+
     @get:NotEmpty
     val language: String,
 
     @get:NotEmpty
-    val firstName:String,
+    val firstname:String,
 
     @get:NotEmpty
-    val lastName:String,
+    val lastname:String,
 
     @get:Email
     @get:NotEmpty
@@ -51,10 +52,10 @@ data class CustomerDetailRequest(
     val language: String,
 
     @get:NotEmpty
-    val firstName:String,
+    val firstname:String,
 
     @get:NotEmpty
-    val lastName:String,
+    val lastname:String,
 
     @get:Valid
     val organisation: Organisation? = null
@@ -71,26 +72,49 @@ data class ChangeEmailRequest(
 )
 
 data class CustomerCreateRequest(
+
+    @get:Valid
     val contact: Contact,
+
+    @get:Valid
     val address: Address,
+
+    @get:NotNull
     val roles: List<String>,
+
+    @get:Valid
     val organisation: Organisation?,
+
     val partnerId: String?,
+
     val identityNumber: String?
 
 )
 
 data class CustomerFilterRequest(
+    @get:NotNull
     val offset: Int,
+
+    @get:NotNull
     val limit: Int,
+
     val sortOrder: SortOrder?,
+
     val sortField: String?,
+
     val customerNr: String?,
+
     val email: String?,
+
     val firstname: String?,
+
     val lastname: String?,
+
     val language: String?,
+
     val country: String?,
+
     val city:String?,
+
     val status: BaseStatus?
 )

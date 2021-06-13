@@ -12,7 +12,6 @@ import com.sicuro.escrow.persistence.dao.RoleDao
 import com.sicuro.escrow.model.Title
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.testcontainers.spock.Testcontainers
 import spock.lang.Specification
 import util.applicationcontext.TestContextConfiguration
 import util.database.DatabaseHelper
@@ -65,8 +64,8 @@ class CustomerRepositorySpec extends Specification{
         customer != null
         customer.customerNumber != null
         customer.title  == request.contact.title
-        customer.firstName == request.contact.firstName
-        customer.lastName == request.contact.lastName
+        customer.firstname == request.contact.firstname
+        customer.lastname == request.contact.lastname
         customer.email == request.contact.email
         customer.organisation == request.organisation.name
         customer.taxNumber == request.organisation.taxNumber
@@ -77,8 +76,8 @@ class CustomerRepositorySpec extends Specification{
 
         customer.customerNumber == customerDb.customerNumber
         customer.title  == customerDb.title
-        customer.firstName == customerDb.firstName
-        customer.lastName == customerDb.lastName
+        customer.firstname == customerDb.firstname
+        customer.lastname == customerDb.lastname
         customer.email == customerDb.email
         customer.organisation == customerDb.organisation
         customer.taxNumber == customerDb.taxNumber
@@ -97,8 +96,8 @@ class CustomerRepositorySpec extends Specification{
 
         updatedCustomer.customerNumber == updatedCustomerDb.customerNumber
         updatedCustomer.title  == updatedCustomerDb.title
-        updatedCustomer.firstName == updatedCustomerDb.firstName
-        updatedCustomer.lastName == updatedCustomerDb.lastName
+        updatedCustomer.firstname == updatedCustomerDb.firstname
+        updatedCustomer.lastname == updatedCustomerDb.lastname
         updatedCustomer.email == updatedCustomerDb.email
         updatedCustomer.language == updatedCustomerDb.language
         updatedCustomer.organisation == updatedCustomerDb.organisation
@@ -106,39 +105,39 @@ class CustomerRepositorySpec extends Specification{
 
 
         when: "Add customer address"
-        def addedAddress = customerRepository.updateAddress(address, updatedCustomer, false)
+        updatedCustomer = customerRepository.updateAddress(updatedCustomer.id, address)
 
         then:
-        addedAddress.id != null
-        addedAddress.street == address.street
-        addedAddress.streetExtension == address.streetExtension
-        addedAddress.city == address.city
-        addedAddress.postalCode == address.postalCode
-        addedAddress.houseNumber == address.houseNumber
-        addedAddress.countryIso == address.countryIso
-        addedAddress.phoneNumber == address.phoneNumber
+        updatedCustomer.address.id != null
+        updatedCustomer.address.street == address.street
+        updatedCustomer.address.streetExtension == address.streetExtension
+        updatedCustomer.address.city == address.city
+        updatedCustomer.address.postalCode == address.postalCode
+        updatedCustomer.address.houseNumber == address.houseNumber
+        updatedCustomer.address.countryIso == address.countryIso
+        updatedCustomer.address.phoneNumber == address.phoneNumber
 
         when: "address is updated"
         def addressToUpdate = new Address(
-                addedAddress.id,
+                updatedCustomer.address.id,
                 "Flossweg",
                 "48",
                 null,
                 "53179",
                  "Bonn",
                 "Nordrhein Westfalen",
-                addedAddress.countryIso,
-                addedAddress.phoneNumber)
+                updatedCustomer.address.countryIso,
+                updatedCustomer.address.phoneNumber)
 
-        def updatedAddress = customerRepository.updateAddress(addressToUpdate, updatedCustomer, false)
+        updatedCustomer = customerRepository.updateAddress(updatedCustomer.id, addressToUpdate)
 
         then:
-        updatedAddress.id != null
-        updatedAddress.street == "Flossweg"
-        updatedAddress.city == "Bonn"
-        updatedAddress.postalCode == "53179"
-        updatedAddress.houseNumber == "48"
-        updatedAddress.region == "Nordrhein Westfalen"
+        updatedCustomer.address.id != null
+        updatedCustomer.address.street == "Flossweg"
+        updatedCustomer.address.city == "Bonn"
+        updatedCustomer.address.postalCode == "53179"
+        updatedCustomer.address.houseNumber == "48"
+        updatedCustomer.address.region == "Nordrhein Westfalen"
     }
 
     def "set customer vat value" () {
@@ -187,8 +186,8 @@ class CustomerRepositorySpec extends Specification{
         then:
         customer != null
         customer.customerNumber != null
-        customer.firstName == request.contact.firstName
-        customer.lastName == request.contact.lastName
+        customer.firstname == request.contact.firstname
+        customer.lastname == request.contact.lastname
         customer.email == request.contact.email
         customer.organisation == request.organisation.name
         customer.taxNumber == request.organisation.taxNumber
@@ -204,8 +203,8 @@ class CustomerRepositorySpec extends Specification{
         def customerDb = databaseHelper.findCustomerByEmail("ngwaambe@hotmail.com")
 
         customer.customerNumber == customerDb.customerNumber
-        customer.firstName == customerDb.firstName
-        customer.lastName == customerDb.lastName
+        customer.firstname == customerDb.firstname
+        customer.lastname == customerDb.lastname
         customer.email == customerDb.email
         customer.organisation == customerDb.organisation
         customer.taxNumber == customerDb.taxNumber
@@ -234,5 +233,9 @@ class CustomerRepositorySpec extends Specification{
         then:
         databaseHelper.findCustomerByEmail(newEmail) != null
         databaseHelper.findCustomerByEmail(initialEmail)  == null
+    }
+
+    def "set customer address"() {
+
     }
 }

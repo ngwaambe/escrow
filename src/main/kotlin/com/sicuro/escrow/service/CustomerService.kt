@@ -14,6 +14,7 @@ import org.springframework.mail.MailException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.lang.IllegalArgumentException
 import java.util.*
 import javax.mail.MessagingException
 import kotlin.collections.HashMap
@@ -31,7 +32,7 @@ class CustomerService @Autowired constructor(
     fun getCustomer(customerId:Long) = customerRepository.getCustomer(customerId)
 
     @Transactional
-    fun createCustomer(request: CustomerCreateRequest) {
+    fun createCustomer(request: CustomerCreateRequest):Customer {
         userRepository.findByUsername(request.contact.email)?.let{
             throw UserAlreadyExistException("User already exist exception")
         }
@@ -45,21 +46,24 @@ class CustomerService @Autowired constructor(
             BaseStatus.active
         )
         sendMail(customer, linkId, request.contact.password)
+        return customer
     }
 
     fun updateCustomer(customerId:Long, request: CustomerDetailRequest):Customer {
-        val customer = customerRepository.getCustomer(customerId);
+        val customer = customerRepository.getCustomer(customerId)
 
         val updatedCustomer = customer.copy(
             title = request.title,
             language = request.language,
-            firstName = request.firstName,
-            lastName = request.lastName,
+            firstname = request.firstname,
+            lastname = request.lastname,
             organisation = request.organisation?.name ?: customer.organisation,
             taxNumber = request.organisation?.taxNumber ?: customer.taxNumber
         )
         return customerRepository.updateCustomerDetails(updatedCustomer)
     }
+
+    fun updateCustomerAddress(customerId: Long, request: Address) = customerRepository.updateAddress(customerId, request)
 
     fun changePassword(customerId:Long, request: ChangePasswordRequest) {
         val customer = customerRepository.getCustomer(customerId)
@@ -80,6 +84,7 @@ class CustomerService @Autowired constructor(
             model["link"] = createRegistrationLink(uuid)
             model["accountNumber"] = customer.customerNumber
             model["userName"] = customer.email
+            model["password"] = password
             val subject: String = getSubject(customer.language)!!
             val email: String = customer.email
             val template: String = getMailTemplate(customer.language,"accountCreation")

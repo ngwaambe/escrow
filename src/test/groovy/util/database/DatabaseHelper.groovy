@@ -9,6 +9,7 @@ import com.sicuro.escrow.persistence.dao.RoleDao
 import com.sicuro.escrow.persistence.dao.UserDao
 import com.sicuro.escrow.persistence.entity.CountryEntity
 import com.sicuro.escrow.persistence.entity.CustomerEntity
+import com.sicuro.escrow.persistence.entity.RoleEntity
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -99,6 +100,12 @@ class DatabaseHelper {
        return activationLinkDao.findByUserUsernameAndType(username, type)?.uuid
     }
 
+    void addAgentRoleToUser(String username) {
+        def userEntity = userDao.findByUsername(username)
+        def roleEntity = roleDao.save( new RoleEntity(null,"ROLE_AGENT", "ROLE_AGENT", null, null))
+        userEntity.roles.add(roleEntity)
+        userDao.saveAndFlush(userEntity)
+    }
 
 }
 

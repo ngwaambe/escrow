@@ -10,9 +10,9 @@ object TextHelper {
     fun getName(customer: Customer): String {
         return StringBuilder().append(getTitle(customer.title, customer.language))
             .append(" ")
-            .append(customer.firstName)
+            .append(customer.firstname)
             .append(" ")
-            .append(customer.lastName)
+            .append(customer.lastname)
             .toString()
     }
 
