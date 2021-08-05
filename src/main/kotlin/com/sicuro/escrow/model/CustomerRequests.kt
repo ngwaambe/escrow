@@ -2,7 +2,6 @@ package com.sicuro.escrow.model
 
 import javax.validation.Valid
 import javax.validation.constraints.*
-import kotlin.math.min
 
 data class Organisation(
     @get:NotEmpty
@@ -43,7 +42,7 @@ data class SecurityQuestionDto(
     val answer: String
 )
 
-data class CustomerDetailRequest(
+data class CustomerDetail(
 
     @get:NotNull
     val title:Title,
@@ -61,17 +60,17 @@ data class CustomerDetailRequest(
     val organisation: Organisation? = null
 )
 
-data class ChangePasswordRequest(
+data class ChangePassword(
     @get:NotEmpty
     @get:Size(min=8)
     val password:String
 )
 
-data class ChangeEmailRequest(
+data class ChangeEmail(
     val email: String
 )
 
-data class CustomerCreateRequest(
+data class CreateCustomer(
 
     @get:Valid
     val contact: Contact,
@@ -91,7 +90,7 @@ data class CustomerCreateRequest(
 
 )
 
-data class CustomerFilterRequest(
+data class CustomerFilter(
     @get:NotNull
     val offset: Int,
 

@@ -103,17 +103,12 @@ create table if not exists freqeuntly_asked_questions
 	tags varchar(255) null
 );
 
-create index idx_answer
-	on freqeuntly_asked_questions (answer);
-
 create index idx_category
 	on freqeuntly_asked_questions (category);
 
 create index idx_language
 	on freqeuntly_asked_questions (language);
 
-create index idx_question
-	on freqeuntly_asked_questions (question);
 
 create index idx_tags
 	on freqeuntly_asked_questions (tags);

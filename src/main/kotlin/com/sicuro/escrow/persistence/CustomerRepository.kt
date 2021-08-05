@@ -9,7 +9,7 @@ import com.sicuro.escrow.util.PaginationUtil
 import com.sicuro.escrow.util.security.CustomKeyGeneratorFactoryService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
@@ -17,7 +17,7 @@ import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 import javax.transaction.Transactional
 
-@Component
+@Repository
 class CustomerRepository(
     private val customerDao: CustomerDao,
     private val countryRepository: CountryRepository,
@@ -41,23 +41,23 @@ class CustomerRepository(
     }
 
     @Transactional
-    fun createCustomer(createRequest: CustomerCreateRequest): Customer {
+    fun createCustomer(createCustomer: CreateCustomer): Customer {
         val customerNumber = generateCustomerNumber();
         val customer = Customer(
             null,
             customerNumber,
-            createRequest.contact.title,
-            createRequest.contact.firstname,
-            createRequest.contact.lastname,
-            createRequest.contact.title.gender,
-            createRequest.contact.email,
-            createRequest.contact.language,
-            createRequest.address,
-            createRequest.organisation?.name,
-            createRequest.organisation?.taxNumber,
+            createCustomer.contact.title,
+            createCustomer.contact.firstname,
+            createCustomer.contact.lastname,
+            createCustomer.contact.title.gender,
+            createCustomer.contact.email,
+            createCustomer.contact.language,
+            createCustomer.address,
+            createCustomer.organisation?.name,
+            createCustomer.organisation?.taxNumber,
             false,
-            createRequest.partnerId,
-            createRequest.identityNumber
+            createCustomer.partnerId,
+            createCustomer.identityNumber
         )
 
         //applyVat
@@ -151,7 +151,7 @@ class CustomerRepository(
         return Customer.convert(customer);
     }
 
-    fun getCustomers(filter: CustomerFilterRequest): PageResult<List<Customer>> {
+    fun getCustomers(filter: CustomerFilter): PageResult<List<Customer>> {
         val pageRequest = PageRequest.of(PaginationUtil.getPage(filter.offset, filter.limit), filter.limit, PaginationUtil.sorting(filter.sortOrder, filter.sortField))
         val page = customerDao.findAll(FilterSpecification(filter), pageRequest)
         return PageResult(page.totalElements, page.numberOfElements, convert(page.content))
@@ -181,7 +181,7 @@ class CustomerRepository(
 
     private fun convert(customers:List<CustomerEntity>) = customers.map { Customer.convert(it) }.toList()
 
-    private class FilterSpecification(val filter: CustomerFilterRequest) : Specification<CustomerEntity> {
+    private class FilterSpecification(val filter: CustomerFilter) : Specification<CustomerEntity> {
 
         override fun toPredicate(root: Root<CustomerEntity>, query: CriteriaQuery<*>, cb: CriteriaBuilder): Predicate? {
             var predicate: Predicate? = null;

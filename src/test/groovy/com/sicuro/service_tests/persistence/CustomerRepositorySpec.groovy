@@ -4,7 +4,7 @@ import com.sicuro.escrow.EscrowAppApplication
 import com.sicuro.escrow.model.Address
 import com.sicuro.escrow.model.Contact
 import com.sicuro.escrow.model.Customer
-import com.sicuro.escrow.model.CustomerCreateRequest
+import com.sicuro.escrow.model.CreateCustomer
 import com.sicuro.escrow.model.Organisation
 import com.sicuro.escrow.model.SignupRequest
 import com.sicuro.escrow.persistence.CustomerRepository
@@ -162,7 +162,7 @@ class CustomerRepositorySpec extends Specification{
 
     def "create customer via create-customer-request"() {
         given:
-        def request = new CustomerCreateRequest(
+        def request = new CreateCustomer(
                 new Contact(
                         Title.Mr,
                         "de",

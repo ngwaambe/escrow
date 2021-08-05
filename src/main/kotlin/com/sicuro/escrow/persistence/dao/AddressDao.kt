@@ -4,5 +4,4 @@ import com.sicuro.escrow.persistence.entity.AddressEntity
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface
-AddressDao: JpaRepository<AddressEntity, Long> {
-}
+AddressDao: JpaRepository<AddressEntity, Long>

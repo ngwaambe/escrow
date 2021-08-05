@@ -3,6 +3,7 @@ package com.sicuro.escrow.service
 import com.sicuro.escrow.exception.SendMailException
 import com.sicuro.escrow.exception.UserAlreadyExistException
 import com.sicuro.escrow.model.*
+import com.sicuro.escrow.persistence.CustomerPaymentAccountRepository
 import com.sicuro.escrow.persistence.CustomerRepository
 import com.sicuro.escrow.persistence.UserRepository
 import com.sicuro.escrow.util.MessageBundleKey
@@ -14,7 +15,6 @@ import org.springframework.mail.MailException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.lang.IllegalArgumentException
 import java.util.*
 import javax.mail.MessagingException
 import kotlin.collections.HashMap
@@ -22,17 +22,18 @@ import kotlin.collections.HashMap
 @Service
 class CustomerService @Autowired constructor(
     val customerRepository: CustomerRepository,
+    val customerPaymentAccountRepository: CustomerPaymentAccountRepository,
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
     @Value("\${host.address}") val hostName: String) {
 
-    fun getCustomers(filter:CustomerFilterRequest) = customerRepository.getCustomers(filter)
+    fun getCustomers(filter:CustomerFilter) = customerRepository.getCustomers(filter)
 
     fun getCustomer(customerId:Long) = customerRepository.getCustomer(customerId)
 
     @Transactional
-    fun createCustomer(request: CustomerCreateRequest):Customer {
+    fun createCustomer(request: CreateCustomer):Customer {
         userRepository.findByUsername(request.contact.email)?.let{
             throw UserAlreadyExistException("User already exist exception")
         }
@@ -49,7 +50,7 @@ class CustomerService @Autowired constructor(
         return customer
     }
 
-    fun updateCustomer(customerId:Long, request: CustomerDetailRequest):Customer {
+    fun updateCustomer(customerId:Long, request: CustomerDetail):Customer {
         val customer = customerRepository.getCustomer(customerId)
 
         val updatedCustomer = customer.copy(
@@ -65,17 +66,22 @@ class CustomerService @Autowired constructor(
 
     fun updateCustomerAddress(customerId: Long, request: Address) = customerRepository.updateAddress(customerId, request)
 
-    fun changePassword(customerId:Long, request: ChangePasswordRequest) {
+    fun changePassword(customerId:Long, request: ChangePassword) {
         val customer = customerRepository.getCustomer(customerId)
         userRepository.changePassword(customer.email, request.password)
     }
 
     @Transactional
-    fun changeEmail(customerId:Long, request: ChangeEmailRequest) {
+    fun changeEmail(customerId:Long, request: ChangeEmail) {
         val customer = customerRepository.getCustomer(customerId)
         userRepository.changePassword(customer.email, request.email)
         customerRepository.changeEmail(customerId, request.email)
     }
+
+    fun addPaymentAccount(customerId:Long, paymentAccount: PaymentAccount) = customerPaymentAccountRepository.add(customerId, paymentAccount)
+
+    fun setDefaultAccount(customerId: Long, paymentAccountId: Long) = customerPaymentAccountRepository.setDefaultCustomerAccount(customerId, paymentAccountId)
+
 
     private fun sendMail(customer: Customer, uuid: String, password:String) {
         try {

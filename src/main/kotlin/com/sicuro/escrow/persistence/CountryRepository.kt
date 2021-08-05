@@ -2,9 +2,9 @@ package com.sicuro.escrow.persistence
 
 import com.sicuro.escrow.persistence.dao.CountryDao
 import com.sicuro.escrow.persistence.entity.CountryEntity
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class CountryRepository(val countryDao: CountryDao) {
 
     fun shouldVatBeApplied(iso:String): Boolean {

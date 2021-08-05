@@ -4,10 +4,10 @@ import com.sicuro.escrow.exception.ObjectAlreadyExistException
 import com.sicuro.escrow.exception.ObjectNotFoundException
 import com.sicuro.escrow.model.Role
 import com.sicuro.escrow.persistence.dao.RoleDao
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import kotlin.streams.toList
 
-@Component
+@Repository
 class RoleRepository(private val roleDao: RoleDao) {
 
     fun addRole(role: Role): Role {
