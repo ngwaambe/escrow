@@ -22,22 +22,22 @@ class CustomerController @Autowired constructor(val customerService: CustomerSer
     fun create(@RequestBody @Valid request: CreateCustomer) = customerService.createCustomer(request)
 
     @PutMapping("/{customerId}")
-    fun update(@PathVariable("customerId")customerId: Long, @RequestBody @Valid   request: CustomerDetail) = customerService.updateCustomer(customerId, request)
+    fun update(@PathVariable("customerId")customerId: Long, @RequestBody @Valid request: CustomerDetail) = customerService.updateCustomer(customerId, request)
 
     @PutMapping("/{customerId}/address")
-    fun updateAddress(@PathVariable("customerId")customerId: Long, @RequestBody @Valid   request: Address) = customerService.updateCustomerAddress(customerId, request)
+    fun updateAddress(@PathVariable("customerId")customerId: Long, @RequestBody @Valid request: Address) = customerService.updateCustomerAddress(customerId, request)
 
     @GetMapping("/{customerId}/payment_methods")
     fun getPaymentMethod(@PathVariable("customerId")customerId: Long) = null
 
     @PutMapping("/{customerId}/change_password")
-    fun changePassword(@PathVariable("customerId")customerId: Long, @RequestBody @Valid  request: ChangePassword) = customerService.changePassword(customerId, request)
+    fun changePassword(@PathVariable("customerId")customerId: Long, @RequestBody @Valid request: ChangePassword) = customerService.changePassword(customerId, request)
 
     @PutMapping("/{customerId}/change_email")
-    fun changeEmail(@PathVariable("customerId")customerId:Long, @RequestBody @Valid  request: ChangeEmail) = customerService.changeEmail(customerId, request)
+    fun changeEmail(@PathVariable("customerId")customerId: Long, @RequestBody @Valid request: ChangeEmail) = customerService.changeEmail(customerId, request)
 
     @PostMapping("/{customerId}/payment_account")
-    fun addPaymentAccount(@PathVariable("customerId")customerId:Long, @RequestBody @Valid  request: PaymentAccount) = customerService.addPaymentAccount(customerId, request)
+    fun addPaymentAccount(@PathVariable("customerId")customerId: Long, @RequestBody @Valid request: PaymentAccount) = customerService.addPaymentAccount(customerId, request)
 
     @PutMapping("/{customerId}/payment_account/{payment_account_id}")
     fun setDefaultPaymentAccount(@PathVariable("customerId")customerId: Long, @PathVariable("payment_account_id") paymentAccountId: Long) = customerService.setDefaultAccount(customerId, paymentAccountId)

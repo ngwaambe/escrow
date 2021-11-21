@@ -2,6 +2,7 @@ package com.sicuro.escrow.controller
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.sicuro.escrow.exception.*
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,15 +36,15 @@ class ExceptionHandler {
         HttpStatus.NOT_FOUND
     )
 
-    @ExceptionHandler(*[UsernameNotFoundException::class, BadCredentialsException::class])
-    fun UsernameNotFoundExceptionHandler(e: AuthenticationException) = ResponseEntity(
+    @ExceptionHandler(UsernameNotFoundException::class, BadCredentialsException::class)
+    fun usernameNotFoundExceptionHandler(e: AuthenticationException) = ResponseEntity(
         ErrorResponse("Entity not found", HttpStatus.NOT_FOUND.value().toString()),
         HttpStatus.NOT_FOUND
     )
 
     @ExceptionHandler(ObjectAlreadyExistException::class)
     fun objectAlreadyExistHandler(e: ObjectAlreadyExistException) = ResponseEntity(
-        ErrorResponse("Entity already exist", HttpStatus.CONFLICT.value().toString(),null, "error-0001"),
+        ErrorResponse("Entity already exist", HttpStatus.CONFLICT.value().toString(), null, "error-0001"),
         HttpStatus.CONFLICT
     )
 
@@ -61,18 +62,23 @@ class ExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException) = ResponseEntity(
-        ErrorResponse("Invalid Format",
+        ErrorResponse(
+            "Invalid Format",
             HttpStatus.BAD_REQUEST.value().toString(),
-            makeErrorRespone(ex)),HttpStatus.BAD_REQUEST
+            makeErrorRespone(ex)
+        ),
+        HttpStatus.BAD_REQUEST
     )
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleBadRequest(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> {
         logger.warn(makeErrorMessage(ex))
         return ResponseEntity(
-            ErrorResponse("Data Validation error",
+            ErrorResponse(
+                "Data Validation error",
                 HttpStatus.BAD_REQUEST.value().toString(),
-                makeErrorResponse(ex)),
+                makeErrorResponse(ex)
+            ),
             HttpStatus.BAD_REQUEST
         )
     }
@@ -81,9 +87,11 @@ class ExceptionHandler {
     fun handleBadRequest(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         logger.warn(makeErrorMessage(ex))
         return ResponseEntity(
-            ErrorResponse("Data Validation error",
+            ErrorResponse(
+                "Data Validation error",
                 HttpStatus.BAD_REQUEST.value().toString(),
-                makeErrorResponse(ex)),
+                makeErrorResponse(ex)
+            ),
             HttpStatus.BAD_REQUEST
         )
     }
@@ -91,14 +99,16 @@ class ExceptionHandler {
     @ExceptionHandler(InvalidActivationLinkException::class)
     fun handleInvalidActivationLinkException(ex: InvalidActivationLinkException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(
-            ErrorResponse("Invalid Link",
-            HttpStatus.NOT_FOUND.value().toString()),
+            ErrorResponse(
+                "Invalid Link",
+                HttpStatus.NOT_FOUND.value().toString()
+            ),
             HttpStatus.NOT_FOUND
         )
     }
 
     @ExceptionHandler(Exception::class)
-    fun sendMailExceptionHandler(e: Exception):ResponseEntity<ErrorResponse> {
+    fun sendMailExceptionHandler(e: Exception): ResponseEntity<ErrorResponse> {
         e.printStackTrace()
         return ResponseEntity(
             ErrorResponse("Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value().toString()),
@@ -125,7 +135,7 @@ class ExceptionHandler {
         return result
     }
 
-    private fun makeErrorRespone(ex: HttpMessageNotReadableException): MutableList<ValidationError>{
+    private fun makeErrorRespone(ex: HttpMessageNotReadableException): MutableList<ValidationError> {
         val result = mutableListOf<ValidationError>()
         if (ex.cause is MismatchedInputException) {
             val cause = ex.cause as MismatchedInputException
@@ -144,7 +154,7 @@ class ExceptionHandler {
      */
     private fun makeErrorMessage(ex: MethodArgumentNotValidException): String {
 
-        var builder = StringBuffer()
+        val builder = StringBuffer()
             .append("Input data validation failed in controller method ${ex.parameter.method!!.name}() in ${ex.parameter.declaringClass.simpleName}\n")
             .append("Errors: [\n")
         ex.bindingResult.fieldErrors.forEach {
@@ -167,7 +177,7 @@ class ExceptionHandler {
      * Note: this is only used for logging well-readable output
      */
     private fun makeErrorMessage(ex: ConstraintViolationException): String {
-        var builder = StringBuffer()
+        val builder = StringBuffer()
             .append("Errors: [\n")
         ex.constraintViolations.forEach {
             builder.append("\t")
@@ -178,8 +188,7 @@ class ExceptionHandler {
         return builder.toString()
     }
 
-
     companion object {
-        val logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
+        val logger: Logger = LoggerFactory.getLogger(ExceptionHandler::class.java)
     }
 }

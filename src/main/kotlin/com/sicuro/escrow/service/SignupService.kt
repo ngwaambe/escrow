@@ -28,11 +28,12 @@ class SignupService @Autowired constructor(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${host.address}") val hostName: String){
+    @Value("\${host.address}") val hostName: String
+) {
 
     @Transactional
     fun signup(signupRequest: SignupRequest) {
-        userRepository.findByUsername(signupRequest.contact.email)?.let{
+        userRepository.findByUsername(signupRequest.contact.email)?.let {
             throw UserAlreadyExistException("User already exist exception")
         }
         val customer = customerRepository.createCustomer(signupRequest)
@@ -49,10 +50,10 @@ class SignupService @Autowired constructor(
         props["link"] = createRegistrationLink(activationLinkId)
         props["accountNumber"] = customer.customerNumber
         props["userName"] = user.username
-        val subject: String = getSubject(customer.language,"registration.checkDataText")!!
+        val subject: String = getSubject(customer.language, "registration.checkDataText")!!
         val email: String = customer.email
-        val template: String = getMailTemplate(customer.language,"registrationActivation")
-        sendMail(email, subject, template,  props)
+        val template: String = getMailTemplate(customer.language, "registrationActivation")
+        sendMail(email, subject, template, props)
     }
 
     @Transactional
@@ -64,16 +65,16 @@ class SignupService @Autowired constructor(
 
     @Transactional
     fun activateAccount(activationUuid: String) {
-        logger.info("activating account for activationId:${activationUuid}")
+        logger.info("activating account for activationId:$activationUuid")
         val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION)
         userRepository.activateUser(link.user.username)
         activationLinkRepository.delete(activationUuid)
         logger.info("account :${link.user.username} has been activated")
-     }
+    }
 
     @Transactional
     fun initiatePasswordReset(email: String) {
-        val linkId  = userRepository.initiateResetPassword(email)
+        val linkId = userRepository.initiateResetPassword(email)
         val customer = customerRepository.getCustomerByEmail(email)
 
         val props = mutableMapOf<String, String>()
@@ -83,7 +84,7 @@ class SignupService @Autowired constructor(
         props["userName"] = customer.email
         val subject: String = getSubject(customer.language, "ResetpasswordStepOne")!!
         val email: String = customer.email
-        val template: String = getMailTemplate(customer.language,"initiateResetPassword")
+        val template: String = getMailTemplate(customer.language, "initiateResetPassword")
         sendMail(email, subject, template, props)
     }
 
@@ -104,21 +105,21 @@ class SignupService @Autowired constructor(
         sendMail(email, subject, template, props)
     }
 
-    private fun sendMail(email:String, subject: String, template: String, props:MutableMap<String, String>) {
+    private fun sendMail(email: String, subject: String, template: String, props: MutableMap<String, String>) {
         try {
             mailService.sendMail(email, subject, template, props)
-        }catch (e: Exception) {
-            when(e) {
-                is MessagingException,  is MailException ->{
+        } catch (e: Exception) {
+            when (e) {
+                is MessagingException, is MailException -> {
                     logger.error(e.localizedMessage)
                     throw SendMailException("Fail sending registration mail", e)
                 }
-                else ->{ throw e}
+                else -> { throw e }
             }
         }
     }
 
-    private fun getSubject(locale:String, label:String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage(label)
+    private fun getSubject(locale: String, label: String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage(label)
 
     private fun createRegistrationLink(activationUuid: String): String {
         return StringBuilder()
@@ -136,9 +137,9 @@ class SignupService @Autowired constructor(
             .toString()
     }
 
-    private fun getMailTemplate(locale:String, templateName:String)= "/"+locale+"/"+templateName+".ftl"
+    private fun getMailTemplate(locale: String, templateName: String) = "/" + locale + "/" + templateName + ".ftl"
 
-    private fun messageUtil (locale:String, resource:String) : MessageUtil {
+    private fun messageUtil(locale: String, resource: String): MessageUtil {
         return MessageUtil.getInstance(MessageBundleKey(Locale(locale), resource))
     }
 

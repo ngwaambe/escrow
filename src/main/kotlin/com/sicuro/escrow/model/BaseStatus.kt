@@ -14,15 +14,15 @@ enum class BaseStatus() {
     active,
 
     /**
+     * Status user entity has when password change is pending
+     */
+    temporary_password,
+
+    /**
      * Business object is not active. Has not taken part in a business activity within a period defined by system
      * adminstrator or not active because certain rules or conditions have not been fullfilled.
      */
     inactive,
-
-    /**
-     * Status user entity has when password change is pending
-     */
-    temporary_password,
 
     /**
      * Business object or entity has been deactivated. Can not take part in any business activity.

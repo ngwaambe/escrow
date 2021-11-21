@@ -15,11 +15,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import java.util.*
 
+// ktlint-disable no-wildcard-imports
+
+// ktlint-disable no-wildcard-imports
 
 @Component
-class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtSecret: String){
+class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtSecret: String) {
 
-    fun generateJWToken(authentication: Authentication, expiration:Number): String {
+    fun generateJWToken(authentication: Authentication, expiration: Number): String {
         val userdata = getUserDetails(authentication)
         val claims = DefaultClaims()
         claims.issuedAt = Date()
@@ -27,7 +30,7 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
         claims.expiration = Date(Date().time.plus(expiration.toInt()))
         claims["customerId"] = userdata.customerId
         claims["tempPwd"] = userdata.temporaryPassword
-        claims["securityQuestion"] = userdata.securityQuestion
+        claims["completeRegistration"] = userdata.completeRegistration
 
         return Jwts.builder()
             .setClaims(claims)
@@ -35,27 +38,27 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
             .compact()
     }
 
-    fun getUsernameFromJwtToken(token: String) = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
+    fun getUsernameFromJwtToken(token: String): String = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).body.subject
 
-    fun validateJwtToken( token: String): Boolean {
+    fun validateJwtToken(token: String): Boolean {
         return checkToken(token).active
     }
 
-    fun checkToken(token:String): CheckTokenResponse {
-        try {
-            val jws:Jws<Claims> = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
+    fun checkToken(token: String): CheckTokenResponse {
+        return try {
+            val jws: Jws<Claims> = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
             val exp = jws.body.expiration.toInstant().epochSecond
-            return CheckTokenResponse(true, exp, null)
+            CheckTokenResponse(true, exp, null)
         } catch (e: Exception) {
             log.error(e.localizedMessage)
-            return CheckTokenResponse(false, 0, e.localizedMessage)
+            CheckTokenResponse(false, 0, e.localizedMessage)
         }
     }
 
-    fun getCustomerIdFromToken(token:String) : Long {
-        try {
-            val jws:Jws<Claims> = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
-            return (jws.body["customerId"] as Int).toLong()
+    fun getCustomerIdFromToken(token: String): Long {
+        return try {
+            val jws: Jws<Claims> = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
+            (jws.body["customerId"] as Int).toLong()
         } catch (e: Exception) {
             log.error(e.localizedMessage)
             throw UsernameNotFoundException("Could not resolve user from token")
@@ -64,8 +67,7 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
 
     private fun getUserDetails(authentication: Authentication) = authentication.principal as MyUser
 
-    companion object{
+    companion object {
         private var log = LoggerFactory.getLogger(JwtUtils::class.java)
     }
-
 }

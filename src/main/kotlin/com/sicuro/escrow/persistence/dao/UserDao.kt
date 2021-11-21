@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserDao : JpaRepository<UserEntity, Long> {
 
-    fun findByUsername(username:String):UserEntity?
+    fun findByUsername(username: String): UserEntity?
 
-    fun findByUsernameAndStatus(username:String, status: BaseStatus): UserEntity?
-
+    fun findByUsernameAndStatusIn(username: String, status: List<BaseStatus>): UserEntity?
 }

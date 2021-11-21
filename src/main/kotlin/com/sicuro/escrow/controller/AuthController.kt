@@ -19,10 +19,11 @@ import javax.validation.constraints.NotNull
 class AuthController @Autowired constructor(
     val signinService: SigninService,
     val signupService: SignupService,
-    val jwtUtils: JwtUtils) {
+    val jwtUtils: JwtUtils
+) {
 
     @PostMapping("/token")
-    fun authenticateUser(@RequestBody  @Valid request: TokenRequest) = ResponseEntity.ok(signinService.login(request))
+    fun authenticateUser(@RequestBody @Valid request: TokenRequest) = ResponseEntity.ok(signinService.login(request))
 
     @PostMapping("/check_token")
     fun validateToken(@RequestBody @Valid request: CheckTokenRequest) = ResponseEntity.ok(signinService.checkToken(request))
@@ -36,12 +37,12 @@ class AuthController @Autowired constructor(
     @GetMapping("/activate_account/{activationId}")
     fun activateAccount(@PathVariable activationId: String) = ResponseEntity.ok(signupService.activateAccount(activationId))
 
-    @PutMapping("/complete_signup/")
-    fun completeUserSignup(@RequestBody @Valid request: CompleteSignupRequest, @NotNull @RequestHeader("Authorization") headerAuth:String) {
+    @PutMapping("/complete_signup")
+    fun completeUserSignup(@RequestBody @Valid request: CompleteSignupRequest, @NotNull @RequestHeader("Authorization") headerAuth: String) {
         Helper.parseJwtToken(headerAuth)?.also {
             val customerId = jwtUtils.getCustomerIdFromToken(it)
             signupService.completeSignup(customerId, request)
-        }?: throw  UsernameNotFoundException("Could not resolve user from token")
+        } ?: throw UsernameNotFoundException("Could not resolve user from token")
     }
 
     @PutMapping("/init_reset_password")
@@ -49,5 +50,4 @@ class AuthController @Autowired constructor(
 
     @GetMapping("/reset_password/{activationId}")
     fun resetPassword(@PathVariable activationId: String) = ResponseEntity.ok(signupService.resetPassword(activationId))
-
 }

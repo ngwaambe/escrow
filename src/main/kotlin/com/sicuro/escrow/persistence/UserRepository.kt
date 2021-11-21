@@ -45,7 +45,8 @@ class UserRepository @Autowired constructor(
         val encodedPassword = passwordEncoder.encode(password)
 
         val updatedUser = user.copy(
-            password = encodedPassword
+            password = encodedPassword,
+            status = BaseStatus.active
         )
         userDao.save(updatedUser)
 

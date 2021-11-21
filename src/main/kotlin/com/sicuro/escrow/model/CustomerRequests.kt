@@ -5,33 +5,33 @@ import javax.validation.constraints.*
 
 data class Organisation(
     @get:NotEmpty
-    val name:String,
+    val name: String,
 
     @get:NotEmpty
-    val taxNumber:String
+    val taxNumber: String
 )
 
 data class Contact(
     @get:NotNull
-    val title:Title,
+    val title: Title,
 
     @get:NotEmpty
     val language: String,
 
     @get:NotEmpty
-    val firstname:String,
+    val firstname: String,
 
     @get:NotEmpty
-    val lastname:String,
+    val lastname: String,
 
     @get:Email
     @get:NotEmpty
-    val email:String,
+    val email: String,
 
-    @get:Size(min=8)
-    //@get:Pattern(regexp = "^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})", message = "Not all password criterias were satisfied")
+    @get:Size(min = 8)
+    // @get:Pattern(regexp = "^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})", message = "Not all password criterias were satisfied")
     @get:NotEmpty
-    val password:String
+    val password: String
 )
 
 data class SecurityQuestionDto(
@@ -45,16 +45,16 @@ data class SecurityQuestionDto(
 data class CustomerDetail(
 
     @get:NotNull
-    val title:Title,
+    val title: Title,
 
     @get:NotEmpty
     val language: String,
 
     @get:NotEmpty
-    val firstname:String,
+    val firstname: String,
 
     @get:NotEmpty
-    val lastname:String,
+    val lastname: String,
 
     @get:Valid
     val organisation: Organisation? = null
@@ -62,8 +62,8 @@ data class CustomerDetail(
 
 data class ChangePassword(
     @get:NotEmpty
-    @get:Size(min=8)
-    val password:String
+    @get:Size(min = 8)
+    val password: String
 )
 
 data class ChangeEmail(
@@ -113,7 +113,7 @@ data class CustomerFilter(
 
     val country: String?,
 
-    val city:String?,
+    val city: String?,
 
     val status: BaseStatus?
 )

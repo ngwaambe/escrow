@@ -26,15 +26,16 @@ class CustomerService @Autowired constructor(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${host.address}") val hostName: String) {
+    @Value("\${host.address}") val hostName: String
+) {
 
-    fun getCustomers(filter:CustomerFilter) = customerRepository.getCustomers(filter)
+    fun getCustomers(filter: CustomerFilter) = customerRepository.getCustomers(filter)
 
-    fun getCustomer(customerId:Long) = customerRepository.getCustomer(customerId)
+    fun getCustomer(customerId: Long) = customerRepository.getCustomer(customerId)
 
     @Transactional
-    fun createCustomer(request: CreateCustomer):Customer {
-        userRepository.findByUsername(request.contact.email)?.let{
+    fun createCustomer(request: CreateCustomer): Customer {
+        userRepository.findByUsername(request.contact.email)?.let {
             throw UserAlreadyExistException("User already exist exception")
         }
         val customer = customerRepository.createCustomer(request)
@@ -50,7 +51,7 @@ class CustomerService @Autowired constructor(
         return customer
     }
 
-    fun updateCustomer(customerId:Long, request: CustomerDetail):Customer {
+    fun updateCustomer(customerId: Long, request: CustomerDetail): Customer {
         val customer = customerRepository.getCustomer(customerId)
 
         val updatedCustomer = customer.copy(
@@ -66,24 +67,23 @@ class CustomerService @Autowired constructor(
 
     fun updateCustomerAddress(customerId: Long, request: Address) = customerRepository.updateAddress(customerId, request)
 
-    fun changePassword(customerId:Long, request: ChangePassword) {
+    fun changePassword(customerId: Long, request: ChangePassword) {
         val customer = customerRepository.getCustomer(customerId)
         userRepository.changePassword(customer.email, request.password)
     }
 
     @Transactional
-    fun changeEmail(customerId:Long, request: ChangeEmail) {
+    fun changeEmail(customerId: Long, request: ChangeEmail) {
         val customer = customerRepository.getCustomer(customerId)
         userRepository.changePassword(customer.email, request.email)
         customerRepository.changeEmail(customerId, request.email)
     }
 
-    fun addPaymentAccount(customerId:Long, paymentAccount: PaymentAccount) = customerPaymentAccountRepository.add(customerId, paymentAccount)
+    fun addPaymentAccount(customerId: Long, paymentAccount: PaymentAccount) = customerPaymentAccountRepository.add(customerId, paymentAccount)
 
     fun setDefaultAccount(customerId: Long, paymentAccountId: Long) = customerPaymentAccountRepository.setDefaultCustomerAccount(customerId, paymentAccountId)
 
-
-    private fun sendMail(customer: Customer, uuid: String, password:String) {
+    private fun sendMail(customer: Customer, uuid: String, password: String) {
         try {
             val model: MutableMap<String, String> = HashMap()
             model["name"] = TextHelper.getName(customer)
@@ -93,20 +93,20 @@ class CustomerService @Autowired constructor(
             model["password"] = password
             val subject: String = getSubject(customer.language)!!
             val email: String = customer.email
-            val template: String = getMailTemplate(customer.language,"accountCreation")
+            val template: String = getMailTemplate(customer.language, "accountCreation")
             mailService.sendMail(email, subject, template, model)
         } catch (e: Exception) {
-            when(e) {
-                is MessagingException,  is MailException ->{
+            when (e) {
+                is MessagingException, is MailException -> {
                     SignupService.logger.error(e.localizedMessage)
                     throw SendMailException("Fail sending registration mail", e)
                 }
-                else ->{ throw e}
+                else -> { throw e }
             }
         }
     }
 
-    private fun getSubject(locale:String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage("registration.checkDataText")
+    private fun getSubject(locale: String) = messageUtil(locale, "com.sicuro.i18n.application").getMessage("registration.checkDataText")
 
     private fun createRegistrationLink(activationUuid: String): String {
         return StringBuilder()
@@ -116,10 +116,9 @@ class CustomerService @Autowired constructor(
             .toString()
     }
 
-    private fun getMailTemplate(locale:String, templateName:String)= "/"+locale+"/"+templateName+".ftl"
+    private fun getMailTemplate(locale: String, templateName: String) = "/" + locale + "/" + templateName + ".ftl"
 
-    private fun messageUtil (locale:String, resource:String) : MessageUtil {
+    private fun messageUtil(locale: String, resource: String): MessageUtil {
         return MessageUtil.getInstance(MessageBundleKey(Locale(locale), resource))
     }
-
 }

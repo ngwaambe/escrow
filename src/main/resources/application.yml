@@ -49,7 +49,7 @@ spring:
         writetimeout: 5000
         starttls.enable: true
         ssl:
-#          trust: *
+          trust: '*'
           protocols: TLSv1.2
 
 mail:
@@ -83,14 +83,15 @@ server:
 # ------------------------------------------------- Production profile ------------------------------------------------
 
 spring:
-  profiles: prod
-
   datasource:
     url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
     username: root
     password: root
 
   banner.location: 'classpath:banner-prod.txt'
+  config:
+    activate:
+      on-profile: prod
 
 server.port: 8080
 
@@ -100,12 +101,13 @@ server.port: 8080
 # ----------------------------------------------- Local development profile -------------------------------------------
 
 spring:
-  profiles: dev
-
   datasource:
     url: 'jdbc:mysql://localhost:3307/sicuro?useSSL=false'
     username: 'root'
     password: 'root'
 
   banner.location: 'classpath:banner.txt'
+  config:
+    activate:
+      on-profile: dev
 

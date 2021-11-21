@@ -23,7 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class WebSecurityConfiguration @Autowired constructor(
     val userDetailService: UserDetailsServiceImpl,
     val unauthorizedHandler: AuthEntryPointJwt,
-    val jwtUtile: JwtUtils) : WebSecurityConfigurerAdapter(){
+    val jwtUtile: JwtUtils
+) : WebSecurityConfigurerAdapter() {
 
     fun authenticationJwtTokenFilter() = AuthTokenFilter(jwtUtile, userDetailService)
 
@@ -33,25 +34,26 @@ class WebSecurityConfiguration @Autowired constructor(
 
     @Bean
     override fun authenticationManagerBean(): AuthenticationManager {
-        return super.authenticationManagerBean();
+        return super.authenticationManagerBean()
     }
 
     @Bean
-    fun passwordEncoder() : PasswordEncoder {
+    fun passwordEncoder(): PasswordEncoder {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder()
     }
 
-    override fun configure(http: HttpSecurity){
+    override fun configure(http: HttpSecurity) {
         http.cors().and().csrf().disable()
-            .authorizeRequests().antMatchers("/api/auth/token").permitAll()
-                                .antMatchers("/api/auth/check_token").permitAll()
-                                .antMatchers("/api/auth/signup").permitAll()
-                                .antMatchers("/api/auth/activate/**").permitAll()
-                                .antMatchers("/api/auth/init_reset_password").permitAll()
-                                .antMatchers("/api/auth/reset_password/**").permitAll()
-                                .antMatchers("/api/auth/activate_account/**").permitAll()
-                                .antMatchers(HttpMethod.POST, "/api/customers").hasAuthority("ROLE_AGENT")
-                                .antMatchers(HttpMethod.POST, "/api/customers/filter").hasAuthority("ROLE_AGENT")
+            .authorizeRequests()
+            .antMatchers("/api/auth/token").permitAll()
+            .antMatchers("/api/auth/check_token").permitAll()
+            .antMatchers("/api/auth/signup").permitAll()
+            .antMatchers("/api/auth/activate/**").permitAll()
+            .antMatchers("/api/auth/init_reset_password").permitAll()
+            .antMatchers("/api/auth/reset_password/**").permitAll()
+            .antMatchers("/api/auth/activate_account/**").permitAll()
+            .antMatchers(HttpMethod.POST, "/api/customers").hasAuthority("ROLE_AGENT")
+            .antMatchers(HttpMethod.POST, "/api/customers/filter").hasAuthority("ROLE_AGENT")
             .anyRequest().authenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
