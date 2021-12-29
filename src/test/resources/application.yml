@@ -55,7 +55,7 @@ logging.config: 'classpath:logback-test.xml'
 mail:
     sender.address: sicuro.com GmbH(noreply)<noreply@sicuro.com>
 
-host.address: http://localhost:8080/
+frontend.host.base_url: http://localhost:8080/
 
 activationlink:
   expiration: 24

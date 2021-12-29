@@ -1,27 +1,28 @@
 package com.sicuro.escrow.model
 
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.sicuro.escrow.persistence.entity.BankAccountEntity
 import com.sicuro.escrow.persistence.entity.PaymentAccountEntity
 
+@JsonTypeName("BankAccount")
 data class BankAccount(
     override val id: Long?,
-    override val type: PaymentAccountType,
     override val owner: String,
     val bankName: String,
     val iban: String,
-    val swiftBic: String,
+    val swiftCode: String,
     val city: String,
     val postalCode: String,
     val countryIso: String
-) : PaymentAccount(id, type, owner) {
+) : PaymentAccount(id, PaymentAccountType.BANK, owner) {
     override fun convert(): PaymentAccountEntity {
         return BankAccountEntity(
             id,
-            type,
+            paymentType,
             owner,
             bankName,
             iban,
-            swiftBic,
+            swiftCode,
             city,
             postalCode,
             countryIso
@@ -35,11 +36,10 @@ data class BankAccount(
             }
             return BankAccount(
                 account.id,
-                account.type,
                 account.owner,
                 (account as BankAccountEntity).bankName,
                 account.iban,
-                account.swiftBic,
+                account.swiftCode,
                 account.city,
                 account.postalCode,
                 account.countryIso

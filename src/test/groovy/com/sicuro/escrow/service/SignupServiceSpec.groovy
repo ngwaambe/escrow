@@ -1,6 +1,6 @@
 package com.sicuro.escrow.service
 
-import com.sicuro.escrow.exception.InvalidActivationLinkException
+import com.sicuro.escrow.exception.InvalidResourceException
 import com.sicuro.escrow.exception.ObjectNotFoundException
 import com.sicuro.escrow.model.Address
 import com.sicuro.escrow.model.BaseStatus
@@ -339,14 +339,14 @@ class SignupServiceSpec extends Specification{
 
         and:
         activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD) >> {
-            throw new InvalidActivationLinkException('')
+            throw new InvalidResourceException('')
         }
 
         when:
         service.resetPassword(activationUuid)
 
         then:
-        thrown(InvalidActivationLinkException)
+        thrown(InvalidResourceException)
     }
 
     User createUser(Map customParams = [:]) {

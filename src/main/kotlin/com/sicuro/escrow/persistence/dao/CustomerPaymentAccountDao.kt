@@ -8,4 +8,6 @@ interface CustomerPaymentAccountDao:JpaRepository<CustomerPaymentAccountEntity, 
     fun countByCustomerId(customerId: Long): Long
 
     fun findAllByCustomerId(customerId: Long): List<CustomerPaymentAccountEntity>
+
+    fun findByCustomerIdAndPaymentAccountId(customerId: Long, paymentAccountId: Long): CustomerPaymentAccountEntity?
 }

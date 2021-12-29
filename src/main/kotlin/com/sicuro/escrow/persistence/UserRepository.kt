@@ -104,6 +104,10 @@ class UserRepository @Autowired constructor(
         }
     }
 
+    fun validatePassword(username: String, password: String): Boolean {
+        return passwordEncoder.matches(password,userDao.findByUsername(username)?.password)
+    }
+
     private fun getUser(username: String):UserEntity {
        return  userDao.findByUsername(username)?:let {
            throw ObjectNotFoundException("user does not exist")

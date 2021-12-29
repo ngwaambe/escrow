@@ -3,7 +3,7 @@ package com.sicuro.escrow.controller
 import com.sicuro.escrow.model.*
 import com.sicuro.escrow.service.SigninService
 import com.sicuro.escrow.service.SignupService
-import com.sicuro.escrow.util.Helper
+import com.sicuro.escrow.util.security.JwtTokenHelper
 import com.sicuro.escrow.util.security.JwtUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -39,7 +39,7 @@ class AuthController @Autowired constructor(
 
     @PutMapping("/complete_signup")
     fun completeUserSignup(@RequestBody @Valid request: CompleteSignupRequest, @NotNull @RequestHeader("Authorization") headerAuth: String) {
-        Helper.parseJwtToken(headerAuth)?.also {
+        JwtTokenHelper.parseJwtToken(headerAuth)?.also {
             val customerId = jwtUtils.getCustomerIdFromToken(it)
             signupService.completeSignup(customerId, request)
         } ?: throw UsernameNotFoundException("Could not resolve user from token")

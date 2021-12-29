@@ -30,6 +30,12 @@ data class ValidationError(
 @ControllerAdvice
 class ExceptionHandler {
 
+    @ExceptionHandler(AccessNotAllowedException::class)
+    fun accessNotAllowedException(e: AccessNotAllowedException) =  ResponseEntity(
+        ErrorResponse("Entity not found", HttpStatus.NOT_FOUND.value().toString()),
+        HttpStatus.CONFLICT
+    )
+
     @ExceptionHandler(ObjectNotFoundException::class)
     fun objectNotExistHandler(e: ObjectNotFoundException) = ResponseEntity(
         ErrorResponse("Entity not found", HttpStatus.NOT_FOUND.value().toString()),
@@ -42,9 +48,9 @@ class ExceptionHandler {
         HttpStatus.NOT_FOUND
     )
 
-    @ExceptionHandler(ObjectAlreadyExistException::class)
-    fun objectAlreadyExistHandler(e: ObjectAlreadyExistException) = ResponseEntity(
-        ErrorResponse("Entity already exist", HttpStatus.CONFLICT.value().toString(), null, "error-0001"),
+    @ExceptionHandler(ConflictException::class)
+    fun objectAlreadyExistHandler(e: ConflictException) = ResponseEntity(
+        ErrorResponse("Conflict Occurred", HttpStatus.CONFLICT.value().toString(), null, "error-0001"),
         HttpStatus.CONFLICT
     )
 
@@ -96,14 +102,25 @@ class ExceptionHandler {
         )
     }
 
-    @ExceptionHandler(InvalidActivationLinkException::class)
-    fun handleInvalidActivationLinkException(ex: InvalidActivationLinkException): ResponseEntity<ErrorResponse> {
+    @ExceptionHandler(InvalidResourceException::class)
+    fun handleInvalidResourceException(ex: InvalidResourceException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(
             ErrorResponse(
                 "Invalid Link",
                 HttpStatus.NOT_FOUND.value().toString()
             ),
             HttpStatus.NOT_FOUND
+        )
+    }
+
+    @ExceptionHandler(ResourceAlreadyUsedException::class)
+    fun handleAlreadyUsedResouceException(ex: ResourceAlreadyUsedException):ResponseEntity<ErrorResponse> {
+        return ResponseEntity(
+            ErrorResponse(
+                "Already used resource",
+                HttpStatus.NOT_FOUND.value().toString()
+            ),
+            HttpStatus.GONE
         )
     }
 

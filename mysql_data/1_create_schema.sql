@@ -158,8 +158,7 @@ create table if not exists notification_number
 
 create table if not exists payment_account
 (
-	id bigint auto_increment
-		primary key,
+	id bigint auto_increment primary key,
 	created datetime not null,
 	last_modified datetime not null,
 	owner varchar(255) not null,

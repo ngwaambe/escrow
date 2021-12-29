@@ -22,8 +22,8 @@ data class BankAccountEntity(
     @Column(name = "iban")
     var iban: String,
 
-    @Column(name = "swiftBic")
-    var swiftBic: String,
+    @Column(name = "swift_code")
+    var swiftCode: String,
 
     @Column(name = "city")
     var city: String,

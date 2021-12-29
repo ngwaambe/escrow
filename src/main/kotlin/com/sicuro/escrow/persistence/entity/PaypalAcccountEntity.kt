@@ -11,7 +11,7 @@ import javax.persistence.Table
 @DiscriminatorValue("PAYPAL")
 data class PaypalAcccountEntity(
 
-    override var id:Long?,
+    override var id: Long?,
 
     override var type: PaymentAccountType,
 
@@ -19,4 +19,4 @@ data class PaypalAcccountEntity(
 
     @Column(name = "paypal_account", nullable = false)
     var paypalAccount: String
-): PaymentAccountEntity(id, type, owner)
+) : PaymentAccountEntity(id, type, owner)

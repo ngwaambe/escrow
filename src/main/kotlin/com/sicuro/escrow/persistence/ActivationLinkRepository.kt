@@ -1,6 +1,6 @@
 package com.sicuro.escrow.persistence
 
-import com.sicuro.escrow.exception.InvalidActivationLinkException
+import com.sicuro.escrow.exception.InvalidResourceException
 import com.sicuro.escrow.model.LinkType
 import com.sicuro.escrow.persistence.dao.ActivationLinkDao
 import com.sicuro.escrow.persistence.entity.ActivationLinkEntity
@@ -22,9 +22,11 @@ class ActivationLinkRepository @Autowired constructor(val activationLinkDao: Act
             )
         ).uuid.toString()
 
-    fun findByIdAndType(linkId: String, type:LinkType) = activationLinkDao.findByUuidAndType(linkId, type)?:throw InvalidActivationLinkException("Unknown activation link")
+    fun findByIdAndType(linkId: String, type:LinkType) = activationLinkDao.findByUuidAndType(linkId, type)?:throw InvalidResourceException("Unknown activation link")
 
     fun findByUserIdAndType(userId: Long, type: LinkType) = activationLinkDao.findByUserIdAndType(userId, type)
+
+    fun save(link: ActivationLinkEntity) = activationLinkDao.saveAndFlush(link)
 
     fun delete(linkId: String) = activationLinkDao.deleteById(linkId)
 }

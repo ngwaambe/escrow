@@ -1,9 +1,7 @@
 package com.sicuro.service_tests.controller
 
 import com.sicuro.escrow.EscrowAppApplication
-import com.sicuro.escrow.model.BaseStatus
 import com.sicuro.escrow.model.LinkType
-import com.sicuro.escrow.model.SortOrder
 import com.sicuro.escrow.model.Title
 import groovy.json.JsonOutput
 import org.springframework.beans.factory.annotation.Autowired
@@ -160,7 +158,7 @@ class CustomerControllerSpec extends Specification {
         token != null
 
         when:
-        def response = requestHelper.put(port:port, token: token, path: "/api/customers/${customerId}/changepassword", body: JsonOutput.toJson([password:"password"]))
+        def response = requestHelper.put(port:port, token: token, path: "/api/customers/${customerId}/change_password", body: JsonOutput.toJson([password:"password"]))
 
         then:
         response.status == 200

@@ -25,8 +25,8 @@ class CustomerRepository(
 ) {
 
     @Transactional
-    fun createCustomer(registration: SignupRequest): Customer{
-        val customerNumber = generateCustomerNumber();
+    fun createCustomer(registration: SignupRequest): Customer {
+        val customerNumber = generateCustomerNumber()
         val customer = Customer(
             customerNumber,
             registration.contact.title,
@@ -35,14 +35,15 @@ class CustomerRepository(
             registration.contact.language,
             registration.contact.email,
             registration.organisation?.name,
-            registration.organisation?.taxNumber)
+            registration.organisation?.taxNumber
+        )
 
         return Customer.convert(saveCustomer(customer))
     }
 
     @Transactional
     fun createCustomer(createCustomer: CreateCustomer): Customer {
-        val customerNumber = generateCustomerNumber();
+        val customerNumber = generateCustomerNumber()
         val customer = Customer(
             null,
             customerNumber,
@@ -60,8 +61,8 @@ class CustomerRepository(
             createCustomer.identityNumber
         )
 
-        //applyVat
-        val customerWithVat = setCustomerValueAddedTax(customer, customer.address!!.countryIso);
+        // applyVat
+        val customerWithVat = setCustomerValueAddedTax(customer, customer.address!!.countryIso)
 
         return Customer.convert(saveCustomer(customerWithVat))
     }
@@ -122,13 +123,13 @@ class CustomerRepository(
             throw ObjectNotFoundException("Customer does not exist")
         }
         return customerEntity.address?.let {
-          val updatedEntity =  customerEntity.copy(applyVat = countryRepository.shouldVatBeApplied(it.countryIso))
-          Customer.convert(customerDao.saveAndFlush(updatedEntity))
+            val updatedEntity = customerEntity.copy(applyVat = countryRepository.shouldVatBeApplied(it.countryIso))
+            Customer.convert(customerDao.saveAndFlush(updatedEntity))
         } ?: customer
     }
 
     @Transactional
-    fun setCustomerVat(customerId: Long, vat: Boolean):Customer {
+    fun setCustomerVat(customerId: Long, vat: Boolean): Customer {
         val oldEntity = customerDao.findById(customerId).orElseThrow {
             throw ObjectNotFoundException("Customer does not exist")
         }
@@ -138,17 +139,17 @@ class CustomerRepository(
     }
 
     @Transactional
-    fun changeEmail(customerId: Long, email:String) {
+    fun changeEmail(customerId: Long, email: String) {
         val customer = getCustomer(customerId)
-        val updatedCustomer = customer.copy(email = email);
+        val updatedCustomer = customer.copy(email = email)
         customerDao.save(updatedCustomer.convert())
     }
 
-    fun getCustomer(customerId:Long): Customer {
+    fun getCustomer(customerId: Long): Customer {
         val customer = customerDao.findById(customerId).orElseThrow {
             throw ObjectNotFoundException("Customer does not exist")
         }
-        return Customer.convert(customer);
+        return Customer.convert(customer)
     }
 
     fun getCustomers(filter: CustomerFilter): PageResult<List<Customer>> {
@@ -157,19 +158,19 @@ class CustomerRepository(
         return PageResult(page.totalElements, page.numberOfElements, convert(page.content))
     }
 
-    fun getCustomerByEmail(email:String): Customer {
-        val customer = customerDao.findByEmail(email)?:let{
+    fun getCustomerByEmail(email: String): Customer {
+        val customer = customerDao.findByEmail(email) ?: let {
             throw ObjectNotFoundException("Customer does not exist")
         }
-        return Customer.convert(customer);
+        return Customer.convert(customer)
     }
 
-    private fun saveCustomer(customer:Customer) = customerDao.save(customer.convert())
+    private fun saveCustomer(customer: Customer) = customerDao.save(customer.convert())
 
     private fun generateCustomerNumber(): String {
         val generator = CustomKeyGeneratorFactoryService.instance.createDefault(OffsetDateTime.now())
         var customerNumber = generator.generateCustomKey()
-        while (customerDao.countByCustomerNumber(customerNumber)>0) {
+        while (customerDao.countByCustomerNumber(customerNumber)> 0) {
             customerNumber = generator.generateCustomKey()
         }
         return customerNumber
@@ -179,26 +180,26 @@ class CustomerRepository(
         return customer.copy(applyVat = countryRepository.shouldVatBeApplied(countryIso))
     }
 
-    private fun convert(customers:List<CustomerEntity>) = customers.map { Customer.convert(it) }.toList()
+    private fun convert(customers: List<CustomerEntity>) = customers.map { Customer.convert(it) }.toList()
 
     private class FilterSpecification(val filter: CustomerFilter) : Specification<CustomerEntity> {
 
         override fun toPredicate(root: Root<CustomerEntity>, query: CriteriaQuery<*>, cb: CriteriaBuilder): Predicate? {
-            var predicate: Predicate? = null;
+            var predicate: Predicate? = null
             if (!filter.customerNr.isNullOrBlank()) {
                 predicate = cb.equal(root.get<String>("customerNumber"), filter.customerNr)
             }
 
             if (!filter.firstname.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.like(cb.lower(root.get("firstname")), append("%",filter.firstname.toLowerCase(),"%")))
-                } ?: cb.like(cb.lower(root.get("firstname")), append("%",filter.firstname.toLowerCase(),"%"))
+                    cb.and(it, cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.toLowerCase(), "%")))
+                } ?: cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.toLowerCase(), "%"))
             }
 
             if (!filter.lastname.isNullOrBlank()) {
                 predicate = predicate?.let {
-                     cb.and(it, cb.like(cb.lower(root.get<String>("lastname")), append("%",filter.lastname.toLowerCase(),"%")))
-                } ?: cb.like(cb.lower(root.get<String>("lastname")), append("%",filter.lastname.toLowerCase(),"%"))
+                    cb.and(it, cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.toLowerCase(), "%")))
+                } ?: cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.toLowerCase(), "%"))
             }
 
             if (!filter.email.isNullOrBlank()) {
@@ -206,10 +207,10 @@ class CustomerRepository(
                     cb.and(it, cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase()))
                 } ?: cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase())
             }
-            //TODO remove not available in customer pojo
+            // TODO remove not available in customer pojo
             if (filter.status != null) {
                 predicate = predicate?.isNotNull?.let {
-                     cb.and(it, cb.equal(root.get<BaseStatus>("status"), filter.status))
+                    cb.and(it, cb.equal(root.get<BaseStatus>("status"), filter.status))
                 } ?: cb.equal(root.get<BaseStatus>("status"), filter.status)
             }
 
@@ -233,6 +234,6 @@ class CustomerRepository(
             return predicate
         }
 
-        fun append(prefix:String, data:String, suffix:String ):String = "$prefix$data$suffix"
+        fun append(prefix: String, data: String, suffix: String): String = "$prefix$data$suffix"
     }
 }

@@ -1,5 +1,7 @@
 package com.sicuro.escrow.service
 
+import com.sicuro.escrow.controller.ResourceAlreadyUsedException
+import com.sicuro.escrow.exception.ObjectNotFoundException
 import com.sicuro.escrow.exception.SendMailException
 import com.sicuro.escrow.exception.UserAlreadyExistException
 import com.sicuro.escrow.model.CompleteSignupRequest
@@ -28,7 +30,7 @@ class SignupService @Autowired constructor(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${host.address}") val hostName: String
+    @Value("\${frontend.host.base_url}") val hostName: String
 ) {
 
     @Transactional
@@ -66,10 +68,16 @@ class SignupService @Autowired constructor(
     @Transactional
     fun activateAccount(activationUuid: String) {
         logger.info("activating account for activationId:$activationUuid")
-        val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION)
-        userRepository.activateUser(link.user.username)
-        activationLinkRepository.delete(activationUuid)
-        logger.info("account :${link.user.username} has been activated")
+        activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION)?.let {
+            if (it.active) {
+                userRepository.activateUser(it.user.username)
+                activationLinkRepository.save(it.copy(active = false))
+                logger.info("account :${it.user.username} has been activated")
+            } else {
+               throw  ResourceAlreadyUsedException("Activation link has already been used")
+            }
+        }
+
     }
 
     @Transactional

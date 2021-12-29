@@ -143,8 +143,8 @@ SELECT
    created,
    last_modified
 FROM transaction_payment_document where DTYPE='PaymentNotification' and commission_fee>0;
---delete from transaction_payment where DTYPE='PaymentNotification' and payment_code=100201:
---commit:
+-- delete from transaction_payment where DTYPE='PaymentNotification' and payment_code=100201:
+-- commit:
 
 INSERT INTO transaction_payment(DTYPE, payment_number, Amount, net_amount, status, payment_document_id, payment_code, description, text_key, created, last_modified)
 SELECT

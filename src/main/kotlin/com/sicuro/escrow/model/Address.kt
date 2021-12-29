@@ -6,7 +6,8 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Past
 import javax.validation.constraints.Size
 
-data class Address(
+data class
+Address(
     val id: Long? = null,
     val street: @NotNull String,
     val houseNumber: String?,

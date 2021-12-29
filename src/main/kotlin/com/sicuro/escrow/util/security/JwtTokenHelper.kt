@@ -1,6 +1,8 @@
-package com.sicuro.escrow.util
+package com.sicuro.escrow.util.security
 
-class Helper {
+import com.sicuro.escrow.exception.AccessNotAllowedException
+
+class JwtTokenHelper {
     companion object {
         fun parseJwtToken(headerAuth: String): String? {
             if (!headerAuth.isNullOrEmpty() && headerAuth.startsWith("Bearer ")) {
@@ -9,4 +11,6 @@ class Helper {
             return null;
         }
     }
+
+
 }

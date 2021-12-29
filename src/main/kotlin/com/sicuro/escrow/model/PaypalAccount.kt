@@ -1,18 +1,19 @@
 package com.sicuro.escrow.model
 
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.sicuro.escrow.persistence.entity.PaymentAccountEntity
 import com.sicuro.escrow.persistence.entity.PaypalAcccountEntity
 
+@JsonTypeName("PaypalAccount")
 data class PaypalAccount(
     override val id:Long?,
-    override val type: PaymentAccountType,
     override val owner:String,
     val paypalAccount: String
-): PaymentAccount(id, type, owner) {
+): PaymentAccount(id, PaymentAccountType.PAYPAL, owner) {
     override fun convert(): PaymentAccountEntity {
         return PaypalAcccountEntity(
             id,
-            type,
+            paymentType,
             owner,
             paypalAccount
         )
@@ -25,7 +26,6 @@ data class PaypalAccount(
             }
             return PaypalAccount(
                 account.id,
-                account.type,
                 account.owner,
                 (account as PaypalAcccountEntity).paypalAccount
             )

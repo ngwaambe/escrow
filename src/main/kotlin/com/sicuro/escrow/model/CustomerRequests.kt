@@ -63,7 +63,10 @@ data class CustomerDetail(
 data class ChangePassword(
     @get:NotEmpty
     @get:Size(min = 8)
-    val password: String
+    val password: String,
+
+    @get:NotEmpty
+    val currentPassword: String
 )
 
 data class ChangeEmail(

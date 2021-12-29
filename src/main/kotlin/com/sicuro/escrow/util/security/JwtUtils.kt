@@ -1,5 +1,6 @@
 package com.sicuro.escrow.util.security
 
+import com.sicuro.escrow.exception.AccessNotAllowedException
 import com.sicuro.escrow.model.CheckTokenResponse
 import com.sicuro.escrow.service.MyUser
 import io.jsonwebtoken.Claims
@@ -62,6 +63,15 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
         } catch (e: Exception) {
             log.error(e.localizedMessage)
             throw UsernameNotFoundException("Could not resolve user from token")
+        }
+    }
+
+    fun userIsAuthenticatedUser(customerId: Long, headerAuth: String) {
+        JwtTokenHelper.parseJwtToken(headerAuth)?.also {
+            val loginUserCustomerId = getCustomerIdFromToken(it)
+            if (loginUserCustomerId != customerId) {
+                throw AccessNotAllowedException("Access not allowed!")
+            }
         }
     }
 

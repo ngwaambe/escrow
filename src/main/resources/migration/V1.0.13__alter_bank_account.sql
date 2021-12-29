@@ -1,1 +1,1 @@
-alter table bank_account change column swiftBic swift_bic varchar(100) not null;
+alter table bank_account change column swiftBic swift_code varchar(40) not null;

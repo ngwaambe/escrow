@@ -1,9 +1,10 @@
 package com.sicuro.escrow.service
 
+import com.sicuro.escrow.exception.InvalidCurrentPasswordException
 import com.sicuro.escrow.exception.SendMailException
 import com.sicuro.escrow.exception.UserAlreadyExistException
 import com.sicuro.escrow.model.*
-import com.sicuro.escrow.persistence.CustomerPaymentAccountRepository
+import com.sicuro.escrow.persistence.PaymentAccountRepository
 import com.sicuro.escrow.persistence.CustomerRepository
 import com.sicuro.escrow.persistence.UserRepository
 import com.sicuro.escrow.util.MessageBundleKey
@@ -22,11 +23,11 @@ import kotlin.collections.HashMap
 @Service
 class CustomerService @Autowired constructor(
     val customerRepository: CustomerRepository,
-    val customerPaymentAccountRepository: CustomerPaymentAccountRepository,
+    val paymentAccountRepository: PaymentAccountRepository,
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${host.address}") val hostName: String
+    @Value("\${frontend.host.base_url}") val frontendHostBaseUrl: String
 ) {
 
     fun getCustomers(filter: CustomerFilter) = customerRepository.getCustomers(filter)
@@ -68,8 +69,11 @@ class CustomerService @Autowired constructor(
     fun updateCustomerAddress(customerId: Long, request: Address) = customerRepository.updateAddress(customerId, request)
 
     fun changePassword(customerId: Long, request: ChangePassword) {
-        val customer = customerRepository.getCustomer(customerId)
-        userRepository.changePassword(customer.email, request.password)
+        customerRepository.getCustomer(customerId)?.let {
+            if (userRepository.validatePassword(it.email, request.currentPassword)) {
+                userRepository.changePassword(it.email, request.password)
+            } else throw InvalidCurrentPasswordException("Current password is not correct")
+        }
     }
 
     @Transactional
@@ -79,9 +83,9 @@ class CustomerService @Autowired constructor(
         customerRepository.changeEmail(customerId, request.email)
     }
 
-    fun addPaymentAccount(customerId: Long, paymentAccount: PaymentAccount) = customerPaymentAccountRepository.add(customerId, paymentAccount)
+    fun addPaymentAccount(customerId: Long, paymentAccount: PaymentAccount) = paymentAccountRepository.add(customerId, paymentAccount)
 
-    fun setDefaultAccount(customerId: Long, paymentAccountId: Long) = customerPaymentAccountRepository.setDefaultCustomerAccount(customerId, paymentAccountId)
+    fun setDefaultAccount(customerId: Long, paymentAccountId: Long) = paymentAccountRepository.setDefaultCustomerAccount(customerId, paymentAccountId)
 
     private fun sendMail(customer: Customer, uuid: String, password: String) {
         try {
@@ -110,8 +114,8 @@ class CustomerService @Autowired constructor(
 
     private fun createRegistrationLink(activationUuid: String): String {
         return StringBuilder()
-            .append(hostName)
-            .append("/activateaccount.jsf?uuid=")
+            .append(frontendHostBaseUrl)
+            .append("activateaccount.jsf?uuid=")
             .append(activationUuid)
             .toString()
     }

@@ -10,7 +10,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "activation_link")
 @EntityListeners(AuditingEntityListener::class)
-class ActivationLinkEntity constructor(
+data class ActivationLinkEntity constructor(
 
     @Id
     var uuid: String,
@@ -37,7 +37,7 @@ class ActivationLinkEntity constructor(
     override fun toString(): String {
         return "ActivationLinkBo{" +
             "uuid='" + uuid +
-            ", type='" + type +
+            ", paymentType='" + type +
             ", active=" + active +
             ", user=" + user +
             ", created="+ created.toString()+

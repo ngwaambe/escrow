@@ -1,8 +1,11 @@
 package util
 
+import com.sicuro.escrow.model.LinkType
+import groovy.json.JsonOutput
 import groovy.util.logging.Slf4j
 import groovyx.net.http.RESTClient
 import org.apache.http.client.RedirectStrategy
+import util.database.DatabaseHelper
 
 import static groovyx.net.http.ContentType.JSON
 
@@ -53,6 +56,40 @@ class RequestHelper {
             headers: createHeaderMap(params.token, params.headers),
             body: params.body ?: ""
         )
+    }
+
+    def signupPayload(username='ngwaambe@hotmail.com', password='12elviscoNGWA') {
+        return JsonOutput.toJson(
+                [
+                        organisation:[
+                                name:"sicuro",
+                                taxNumber:"213415645"
+                        ],
+                        contact: [
+                                title:"Mr",
+                                language:"en",
+                                firstname:"Peter",
+                                lastname: "The Great",
+                                email:"${username}",
+                                password:"${password}"
+                        ]
+                ])
+    }
+
+    def void signupAndActivateAccount(String username, String password, int port, DatabaseHelper databaseHelper) {
+        def payload = signupPayload(username, password)
+        assert post(port: port, path: "/api/auth/signup",body: payload).status == 200
+
+        def activationId = databaseHelper.findLinkId(username, LinkType.ACCOUNT_ACTIVATION)
+        assert activationId != null
+
+        assert get(port: port, path: "/api/auth/activate_account/${activationId}").status == 200
+    }
+
+    def String fetchToken(String username, String password, int port) {
+        def response =  post(port: port, path: "/api/auth/token", body: JsonOutput.toJson([username:"${username}", password:"${password}"]))
+        assert response.status ==  200
+        return response.data.access_token
     }
 
     private def createHeaderMap(String token, Map other) {
