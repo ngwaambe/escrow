@@ -1,15 +1,14 @@
 package com.sicuro.escrow.model
 
-import org.springframework.validation.annotation.Validated
 import javax.validation.constraints.NotBlank
 
 data class TokenRequest(
 
     @get:NotBlank
-    val username:String,
+    val username: String,
 
     @get:NotBlank
-    val password:String
+    val password: String
 )
 
 data class TokenResponse @JvmOverloads constructor(
@@ -19,17 +18,17 @@ data class TokenResponse @JvmOverloads constructor(
     val refresh_token: String? = null,
 )
 
-data class CheckTokenRequest (
+data class CheckTokenRequest(
     @get:NotBlank
     val token: String
 )
 
-data class RefreshTokenRequest (
+data class RefreshTokenRequest(
     @get:NotBlank
     val token: String
- )
+)
 
-data class CheckTokenResponse (
+data class CheckTokenResponse(
     val active: Boolean,
     val exp: Long,
     val error: String?

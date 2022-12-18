@@ -60,6 +60,12 @@ class ExceptionHandler {
         HttpStatus.CONFLICT
     )
 
+    @ExceptionHandler(ExpiredLinkException::class)
+    fun expiredLinkExceptionHandler(e: ExpiredLinkException) = ResponseEntity(
+        ErrorResponse("Link has expired", HttpStatus.GONE.value().toString(), null, "error-0002"),
+        HttpStatus.GONE
+    )
+
     @ExceptionHandler(SendMailException::class)
     fun sendMailExceptionHandler(e: SendMailException) = ResponseEntity(
         ErrorResponse("Error Sending Mail", HttpStatus.INTERNAL_SERVER_ERROR.value().toString()),

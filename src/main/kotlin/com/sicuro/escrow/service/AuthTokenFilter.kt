@@ -12,13 +12,15 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class AuthTokenFilter  constructor(val jwtUtils: JwtUtils, val userDetailService: UserDetailsServiceImpl): OncePerRequestFilter() {
+class AuthTokenFilter constructor(val jwtUtils: JwtUtils, val userDetailService: UserDetailsServiceImpl) : OncePerRequestFilter() {
 
     @Throws(ServletException::class, IOException::class)
-    override fun doFilterInternal(request: HttpServletRequest,
-                                  response: HttpServletResponse,
-                                  filterChain: FilterChain) {
-        try{
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
+        try {
             val jwt = parseJwt(request)
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 val username = jwtUtils.getUsernameFromJwtToken(jwt)
@@ -28,19 +30,18 @@ class AuthTokenFilter  constructor(val jwtUtils: JwtUtils, val userDetailService
 
                 SecurityContextHolder.getContext().authentication = authentication
             }
-
-        } catch(e:Exception) {
+        } catch (e: Exception) {
             logger.error("Cannot set user authentication: {}", e)
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response)
     }
 
     private fun parseJwt(request: HttpServletRequest): String? {
         val headerAuth = request.getHeader("Authorization")
         if (!headerAuth.isNullOrEmpty() && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7, headerAuth.length);
+            return headerAuth.substring(7, headerAuth.length)
         }
-        return null;
+        return null
     }
 
     companion object {

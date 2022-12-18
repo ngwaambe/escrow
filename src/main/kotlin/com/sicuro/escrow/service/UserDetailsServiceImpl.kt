@@ -16,7 +16,7 @@ class MyUser(
     password: String,
     grantedAuthorities: HashSet<GrantedAuthority>,
     val customerId: Long,
-    val completeRegistration: Boolean,
+    val hasSecurityQuestion: Boolean,
     val temporaryPassword: Boolean
 ) : User(username, password, grantedAuthorities)
 
@@ -32,7 +32,7 @@ class UserDetailsServiceImpl @Autowired constructor(val userDao: UserDao, val li
                 user.password,
                 grantedAuthorities,
                 user.customerId,
-                !user.hasSecurityQuestion(),
+                user.hasSecurityQuestion(),
                 user.status == BaseStatus.temporary_password
             )
         } ?: throw UsernameNotFoundException("login.error.userNotFound")

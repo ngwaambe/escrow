@@ -1,12 +1,7 @@
 package com.sicuro.escrow.service
 
-import com.sicuro.escrow.controller.ResourceAlreadyUsedException
-import com.sicuro.escrow.exception.ObjectNotFoundException
-import com.sicuro.escrow.exception.SendMailException
-import com.sicuro.escrow.exception.UserAlreadyExistException
-import com.sicuro.escrow.model.CompleteSignupRequest
-import com.sicuro.escrow.model.LinkType
-import com.sicuro.escrow.model.SignupRequest
+import com.sicuro.escrow.exception.*
+import com.sicuro.escrow.model.*
 import com.sicuro.escrow.persistence.ActivationLinkRepository
 import com.sicuro.escrow.persistence.CustomerRepository
 import com.sicuro.escrow.persistence.UserRepository
@@ -20,6 +15,7 @@ import org.springframework.mail.MailException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
 import java.util.*
 import javax.mail.MessagingException
 
@@ -30,7 +26,8 @@ class SignupService @Autowired constructor(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
-    @Value("\${frontend.host.base_url}") val hostName: String
+    @Value("\${frontend.host.base_url}") val hostName: String,
+    @Value("\${activationlink.expiration.resetpassword}") val resetPasswordExpiringOffset: Long
 ) {
 
     @Transactional
@@ -74,16 +71,18 @@ class SignupService @Autowired constructor(
                 activationLinkRepository.save(it.copy(active = false))
                 logger.info("account :${it.user.username} has been activated")
             } else {
-               throw  ResourceAlreadyUsedException("Activation link has already been used")
+                throw ResourceAlreadyUsedException("Activation link has already been used")
             }
         }
-
     }
 
     @Transactional
     fun initiatePasswordReset(email: String) {
-        val linkId = userRepository.initiateResetPassword(email)
+
         val customer = customerRepository.getCustomerByEmail(email)
+        logger.info("Initiating password reset for customerId: {}", customer.id)
+
+        val linkId = userRepository.initiateResetPassword(email)
 
         val props = mutableMapOf<String, String>()
         props["name"] = TextHelper.getName(customer)
@@ -96,21 +95,41 @@ class SignupService @Autowired constructor(
         sendMail(email, subject, template, props)
     }
 
-    fun resetPassword(activationUuid: String) {
-        val link = activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD)
-        val password = userRepository.resetPassword(link.user.username)
-        val customer = customerRepository.getCustomerByEmail(link.user.username)
+    fun getSecurityQuestion(activationUuid: String): SecurityQuestionResponse {
+        logger.info("Fetching secuityQuestion resetpassword activationId:{}", activationUuid)
+        return activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD)?.let {
+            if (it.created!!.isAfter(OffsetDateTime.now().plusMinutes(resetPasswordExpiringOffset))) {
+                logger.info("Resetpassword activationId:{} has expired", activationUuid)
+                throw ExpiredLinkException("This lick is has expired")
+            }
+            it.user.securityQuestion?.let { question ->
+                SecurityQuestionResponse(question, activationUuid)
+            } ?: run {
+                logger.info("Resetpassword activationId:{} could not be resolved", activationUuid)
+                throw InvalidResourceException("Account")
+            }
+        }
+    }
 
-        val props = mutableMapOf<String, String>()
-        props["name"] = TextHelper.getName(customer)
-        props["link"] = StringBuilder().append(hostName).append("/authenticate").toString()
-        props["accountNumber"] = customer.customerNumber
-        props["userName"] = customer.email
-        props["password"] = password
-        val subject: String = getSubject(customer.language, "ResetPasswordRequest")!!
-        val email: String = customer.email
-        val template: String = getMailTemplate(customer.language, "resetPassword")
-        sendMail(email, subject, template, props)
+    fun resetPassword(request: ResetPasswordRequest) {
+        val link = activationLinkRepository.findByIdAndType(request.activationId, LinkType.RESET_PASSWORD)
+        if (passwordEncoder.matches(request.questionAnswer, link.user.securityQuestionAnswer)) {
+            logger.info("reseting password for acivation link: {} userId: {}", request.activationId, link.user.id)
+            val password = userRepository.resetPassword(link.user.username)
+            val customer = customerRepository.getCustomerByEmail(link.user.username)
+
+            val props = mutableMapOf<String, String>()
+            props["name"] = TextHelper.getName(customer)
+            props["link"] = StringBuilder().append(hostName).append("/authenticate").toString()
+            props["accountNumber"] = customer.customerNumber
+            props["userName"] = customer.email
+            props["password"] = password
+            val subject: String = getSubject(customer.language, "ResetPasswordRequest")!!
+            val email: String = customer.email
+            val template: String = getMailTemplate(customer.language, "resetPassword")
+            sendMail(email, subject, template, props)
+            activationLinkRepository.delete(link.uuid)
+        } else throw InvalidSecurityQuestionAnswerException("Answer is not valid")
     }
 
     private fun sendMail(email: String, subject: String, template: String, props: MutableMap<String, String>) {
@@ -122,7 +141,9 @@ class SignupService @Autowired constructor(
                     logger.error(e.localizedMessage)
                     throw SendMailException("Fail sending registration mail", e)
                 }
-                else -> { throw e }
+                else -> {
+                    throw e
+                }
             }
         }
     }
@@ -140,7 +161,7 @@ class SignupService @Autowired constructor(
     private fun createResetpasswordLink(activationUuid: String): String {
         return StringBuilder()
             .append(hostName)
-            .append("/resetpassword?uuid=")
+            .append("/reset_password?uuid=")
             .append(activationUuid)
             .toString()
     }

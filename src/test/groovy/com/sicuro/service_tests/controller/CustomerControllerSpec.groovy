@@ -158,7 +158,7 @@ class CustomerControllerSpec extends Specification {
         token != null
 
         when:
-        def response = requestHelper.put(port:port, token: token, path: "/api/customers/${customerId}/change_password", body: JsonOutput.toJson([password:"password"]))
+        def response = requestHelper.put(port:port, token: token, path: "/api/customers/${customerId}/change_password", body: JsonOutput.toJson([currentPassword: password , password:"password"]))
 
         then:
         response.status == 200

@@ -170,7 +170,7 @@ class CustomerRepository(
     private fun generateCustomerNumber(): String {
         val generator = CustomKeyGeneratorFactoryService.instance.createDefault(OffsetDateTime.now())
         var customerNumber = generator.generateCustomKey()
-        while (customerDao.countByCustomerNumber(customerNumber)> 0) {
+        while (customerDao.countByCustomerNumber(customerNumber) > 0) {
             customerNumber = generator.generateCustomKey()
         }
         return customerNumber
@@ -192,20 +192,20 @@ class CustomerRepository(
 
             if (!filter.firstname.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.toLowerCase(), "%")))
-                } ?: cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.toLowerCase(), "%"))
+                    cb.and(it, cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.lowercase(), "%")))
+                } ?: cb.like(cb.lower(root.get("firstname")), append("%", filter.firstname.lowercase(), "%"))
             }
 
             if (!filter.lastname.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.toLowerCase(), "%")))
-                } ?: cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.toLowerCase(), "%"))
+                    cb.and(it, cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.lowercase(), "%")))
+                } ?: cb.like(cb.lower(root.get<String>("lastname")), append("%", filter.lastname.lowercase(), "%"))
             }
 
             if (!filter.email.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase()))
-                } ?: cb.like(cb.lower(root.get<String>("email")), filter.email.toLowerCase())
+                    cb.and(it, cb.like(cb.lower(root.get<String>("email")), filter.email.lowercase()))
+                } ?: cb.like(cb.lower(root.get<String>("email")), filter.email.lowercase())
             }
             // TODO remove not available in customer pojo
             if (filter.status != null) {
@@ -216,8 +216,8 @@ class CustomerRepository(
 
             if (!filter.city.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.toLowerCase()))
-                } ?: cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.toLowerCase())
+                    cb.and(it, cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.lowercase()))
+                } ?: cb.equal(cb.lower(root.get<Address>("address").get<String>("city")), filter.city.lowercase())
             }
 
             if (!filter.country.isNullOrBlank()) {
@@ -228,8 +228,8 @@ class CustomerRepository(
 
             if (!filter.language.isNullOrBlank()) {
                 predicate = predicate?.let {
-                    cb.and(it, cb.equal(cb.lower(root.get<String>("language")), filter.language.toLowerCase()))
-                } ?: cb.equal(cb.lower(root.get<String>("language")), filter.language.toLowerCase())
+                    cb.and(it, cb.equal(cb.lower(root.get<String>("language")), filter.language.lowercase()))
+                } ?: cb.equal(cb.lower(root.get<String>("language")), filter.language.lowercase())
             }
             return predicate
         }

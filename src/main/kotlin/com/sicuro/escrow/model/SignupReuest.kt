@@ -1,7 +1,6 @@
 package com.sicuro.escrow.model
 
 import javax.validation.Valid
-import javax.validation.constraints.NotNull
 
 data class SignupRequest(
 
@@ -12,15 +11,23 @@ data class SignupRequest(
     val contact: Contact,
 )
 
-data class CompleteSignupRequest (
+data class CompleteSignupRequest(
     @Valid
     val address: Address,
     @Valid
     val securityQuestion: SecurityQuestionDto
 )
 
-data class ResetPasswordRequest (
-    val email:String
+data class SecurityQuestionResponse(
+    val question: SecurityQuestion,
+    val activationId: String
 )
 
+data class ResetPasswordRequest(
+    val questionAnswer: String,
+    val activationId: String
+)
 
+data class InitiatResetPasswordRequest(
+    val email: String
+)

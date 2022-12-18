@@ -12,7 +12,7 @@ import java.util.*
 @Component
 class ActivationLinkRepository @Autowired constructor(val activationLinkDao: ActivationLinkDao) {
 
-    fun createLink(user: UserEntity, type:LinkType) =
+    fun createLink(user: UserEntity, type: LinkType) =
         activationLinkDao.save(
             ActivationLinkEntity(
                 UUID.randomUUID().toString(),
@@ -20,9 +20,9 @@ class ActivationLinkRepository @Autowired constructor(val activationLinkDao: Act
                 true,
                 user
             )
-        ).uuid.toString()
+        ).uuid
 
-    fun findByIdAndType(linkId: String, type:LinkType) = activationLinkDao.findByUuidAndType(linkId, type)?:throw InvalidResourceException("Unknown activation link")
+    fun findByIdAndType(linkId: String, type: LinkType) = activationLinkDao.findByUuidAndType(linkId, type) ?: throw InvalidResourceException("Unknown activation link")
 
     fun findByUserIdAndType(userId: Long, type: LinkType) = activationLinkDao.findByUserIdAndType(userId, type)
 

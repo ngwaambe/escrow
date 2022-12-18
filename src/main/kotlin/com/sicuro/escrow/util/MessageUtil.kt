@@ -10,9 +10,10 @@ data class MessageBundleKey(
     val resource: String
 )
 
-open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
+open class SingletonHolder<out T : Any, in A>(creator: (A) -> T) {
     private var creator: ((A) -> T)? = creator
-    @Volatile private var instance: T? = null
+    @Volatile
+    private var instance: T? = null
 
     fun getInstance(arg: A): T {
         val i = instance
@@ -34,7 +35,7 @@ open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
     }
 }
 
-class MessageUtil private constructor(messageBundleKey: MessageBundleKey){
+class MessageUtil private constructor(messageBundleKey: MessageBundleKey) {
 
     private var bundle: ResourceBundle? = null
 
@@ -46,9 +47,9 @@ class MessageUtil private constructor(messageBundleKey: MessageBundleKey){
 
     init {
         bundle = bundleStore.get(messageBundleKey)
-        if (bundle == null){
+        if (bundle == null) {
             bundle = ResourceBundle.getBundle(messageBundleKey.resource, messageBundleKey.locale)
-            bundleStore.put(messageBundleKey, bundle!!);
+            bundleStore.put(messageBundleKey, bundle!!)
         }
     }
 
@@ -83,13 +84,13 @@ class MessageUtil private constructor(messageBundleKey: MessageBundleKey){
         return getMessage(key, arrayOf(arg1, arg2))
     }
 
-    fun getMessage(key: String, args: Array<Any>): String? {
-        if (args == null || args.size == 0) {
-            return getMessage(key)
+    private fun getMessage(key: String, args: Array<Any>): String? {
+        return if (args.isEmpty()) {
+            getMessage(key)
+        } else {
+            val fmt = MessageFormat(getMessage(key))
+            fmt.locale = locale
+            fmt.format(args)
         }
-        val fmt = MessageFormat(getMessage(key))
-        fmt.locale = locale
-        return fmt.format(args)
     }
-
 }

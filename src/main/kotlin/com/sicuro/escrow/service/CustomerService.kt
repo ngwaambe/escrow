@@ -27,6 +27,7 @@ class CustomerService @Autowired constructor(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val mailService: MailService,
+    val signinService: SigninService,
     @Value("\${frontend.host.base_url}") val frontendHostBaseUrl: String
 ) {
 
@@ -72,6 +73,7 @@ class CustomerService @Autowired constructor(
         customerRepository.getCustomer(customerId)?.let {
             if (userRepository.validatePassword(it.email, request.currentPassword)) {
                 userRepository.changePassword(it.email, request.password)
+                signinService.refreshSecurityContext(TokenRequest(it.email, request.password))
             } else throw InvalidCurrentPasswordException("Current password is not correct")
         }
     }

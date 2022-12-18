@@ -9,6 +9,7 @@ import com.sicuro.escrow.model.Contact
 import com.sicuro.escrow.model.Customer
 import com.sicuro.escrow.model.LinkType
 import com.sicuro.escrow.model.Organisation
+import com.sicuro.escrow.model.ResetPasswordRequest
 import com.sicuro.escrow.model.SecurityQuestion
 import com.sicuro.escrow.model.SecurityQuestionDto
 import com.sicuro.escrow.model.SignupRequest
@@ -58,7 +59,7 @@ class SignupServiceSpec extends Specification{
             userRepository,
             passwordEncoder,
             mailService,
-            "address")
+            "address", 10)
 
     def "Signup  - happy path"() {
         given:
@@ -254,19 +255,21 @@ class SignupServiceSpec extends Specification{
 
     def "initiate password reset - happy path"(){
         given:
-        def customer = createCustomer(email:'test@email.com')
+        def email = "test@email.com"
+        def customer = createCustomer(email:email)
 
         when:
-        service.initiatePasswordReset(customer.email)
+        service.initiatePasswordReset(email)
+
+        then:
+        customerRepository.getCustomerByEmail(customer.email) >> customer
+
 
         then:
         userRepository.initiateResetPassword(_) >> { arguments ->
             arguments[0] == 'test@email.com'
             return "linkedUuid"
         }
-
-        then:
-        customerRepository.getCustomerByEmail(customer.email) >> customer
 
         then:
         mailService.sendMail(_, _, _, _) >> { arguments ->
@@ -286,14 +289,18 @@ class SignupServiceSpec extends Specification{
 
     def "initiate password reset - fails unknown user"(){
         given:
-        def customer = createCustomer(email:'test@email.com')
+        def email = "test@email.com"
+        def customer = createCustomer(email:email)
 
         and:
         userRepository.initiateResetPassword(_ ) >> {
             throw new ObjectNotFoundException("user does not exist")
         }
         when:
-        service.initiatePasswordReset("some user")
+        service.initiatePasswordReset(email)
+
+        then:
+        customerRepository.getCustomerByEmail(email) >> customer
 
         then:
         thrown(ObjectNotFoundException)
@@ -302,15 +309,18 @@ class SignupServiceSpec extends Specification{
     def "reset password - happy path"() {
         given:
         def customer = createCustomer([:])
-        def activationUuid = UUID.randomUUID().toString()
+        def request = new ResetPasswordRequest(UUID.randomUUID().toString(), "answer")
         def resetPasswordLink = createActivationLinkEntity(type:LinkType.RESET_PASSWORD)
         def password = "password"
 
         when:
-        service.resetPassword(activationUuid)
+        service.resetPassword(request)
 
         then:
-        activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD) >> resetPasswordLink
+        activationLinkRepository.findByIdAndType(request.activationId, LinkType.RESET_PASSWORD) >> resetPasswordLink
+
+        then:
+        passwordEncoder.matches(request.questionAnswer, resetPasswordLink.user.securityQuestionAnswer) >> true
 
         then:
         userRepository.resetPassword(resetPasswordLink.user.username) >> password
@@ -335,15 +345,15 @@ class SignupServiceSpec extends Specification{
 
     def "reset password - fails invalid link"() {
         given:
-        def activationUuid = UUID.randomUUID().toString()
+        def request = new ResetPasswordRequest(UUID.randomUUID().toString(), "answer")
 
         and:
-        activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD) >> {
+        activationLinkRepository.findByIdAndType(request.activationId, LinkType.RESET_PASSWORD) >> {
             throw new InvalidResourceException('')
         }
 
         when:
-        service.resetPassword(activationUuid)
+        service.resetPassword(request)
 
         then:
         thrown(InvalidResourceException)
@@ -446,7 +456,21 @@ class SignupServiceSpec extends Specification{
                 uuid: UUID.randomUUID().toString(),
                 type: LinkType.ACCOUNT_ACTIVATION,
                 active: false,
-                user: new UserEntity(1L, 'username', 'password', BaseStatus.active, 1L, [new RoleEntity(1L, 'Role', 'Role',null, null)].toSet(), null, null, null, null, null, null),
+                user: new UserEntity(
+                        1L,
+                        'username',
+                        'password',
+                        BaseStatus.active,
+                        1L, [
+                            new RoleEntity(
+                                    1L,
+                                    'Role',
+                                    'Role',
+                                    null,
+                                    null)
+                            ].toSet(),
+                        SecurityQuestion.CHILD_HOOD_NICNAME,
+                        "answer", null, null, null, null),
                 created: OffsetDateTime.now(),
                 lastModified: OffsetDateTime.now()
         ]

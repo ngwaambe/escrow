@@ -45,9 +45,12 @@ class AuthController @Autowired constructor(
         } ?: throw UsernameNotFoundException("Could not resolve user from token")
     }
 
-    @PutMapping("/init_reset_password")
-    fun initiatePasswordReset(@RequestBody @Valid request: ResetPasswordRequest) = ResponseEntity.ok(signupService.initiatePasswordReset(request.email))
+    @PostMapping("/init_reset_password")
+    fun initiatePasswordReset(@RequestBody @Valid request: InitiatResetPasswordRequest) = ResponseEntity.ok(signupService.initiatePasswordReset(request.email))
 
     @GetMapping("/reset_password/{activationId}")
-    fun resetPassword(@PathVariable activationId: String) = ResponseEntity.ok(signupService.resetPassword(activationId))
+    fun resetPassword(@PathVariable activationId: String) = ResponseEntity.ok(signupService.getSecurityQuestion(activationId))
+
+    @PostMapping("/reset_password")
+    fun resetPassword(@RequestBody request: ResetPasswordRequest) = ResponseEntity.ok(signupService.resetPassword(request))
 }

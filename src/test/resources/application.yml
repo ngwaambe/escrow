@@ -58,7 +58,8 @@ mail:
 frontend.host.base_url: http://localhost:8080/
 
 activationlink:
-  expiration: 24
+  expiration:
+    resetpassword: 15
 
 security:
   jwt:

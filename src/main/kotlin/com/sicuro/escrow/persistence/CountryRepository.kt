@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository
 @Repository
 class CountryRepository(val countryDao: CountryDao) {
 
-    fun shouldVatBeApplied(iso:String): Boolean {
-        val country: CountryEntity = countryDao.findByIso(iso.toUpperCase())?: throw IllegalStateException("Can not resolve country: $iso")
+    fun shouldVatBeApplied(iso: String): Boolean {
+        val country: CountryEntity = countryDao.findByIso(iso.toUpperCase()) ?: throw IllegalStateException("Can not resolve country: $iso")
         // if country is germany always apply tax
         return if (country.iso.equals("DE", true)) {
             true

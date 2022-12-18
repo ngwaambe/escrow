@@ -51,7 +51,7 @@ class PaymentAccountRepositorySpec extends Specification {
             } else {
                 it.bankName == (account as BankAccount).bankName
                 it.iban == (account as BankAccount).iban
-                it.swiftBic == (account as BankAccount).swiftCode
+                it.swiftCode == (account as BankAccount).swiftCode
                 it.city == (account as BankAccount).city
                 it.postalCode == (account as BankAccount).postalCode
                 it.countryIso == (account as BankAccount).countryIso
@@ -132,7 +132,7 @@ class PaymentAccountRepositorySpec extends Specification {
         updatedAccount.paypalAccount == "e.ngwa@email.com"
 
         when: "delete account"
-        paymentAccountRepository.delete(account.id)
+        paymentAccountRepository.delete(customerEntity.id, account.id)
 
         then:
         paymentAccountDao.findAll().size() == 0

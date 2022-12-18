@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class UserRepository @Autowired constructor(
-    val userDao:  UserDao,
+    val userDao: UserDao,
     val rolesDao: RoleDao,
     val activationLinkRepository: ActivationLinkRepository,
     val passwordEncoder: PasswordEncoder
@@ -25,22 +25,24 @@ class UserRepository @Autowired constructor(
     @Transactional
     fun createUser(username: String, password: String, customerId: Long, roles: List<String>, status: BaseStatus = BaseStatus.deactivated): Pair<User, String> {
         val roleEntities = rolesDao.findByRoleNameIn(roles)
-        val userEntity =  userDao.save(UserEntity(
-           null,
-           username,
-           password,
-            status,
-            customerId,
-           roleEntities
-       ))
+        val userEntity = userDao.save(
+            UserEntity(
+                null,
+                username,
+                password,
+                status,
+                customerId,
+                roleEntities
+            )
+        )
 
-       val activationLinkId = activationLinkRepository.createLink(userEntity, LinkType.ACCOUNT_ACTIVATION)
+        val activationLinkId = activationLinkRepository.createLink(userEntity, LinkType.ACCOUNT_ACTIVATION)
 
-       return Pair(User.convert(userEntity), activationLinkId)
+        return Pair(User.convert(userEntity), activationLinkId)
     }
 
     @Transactional
-    fun changePassword(username:String, password: String) {
+    fun changePassword(username: String, password: String) {
         val user = getUser(username)
         val encodedPassword = passwordEncoder.encode(password)
 
@@ -49,7 +51,6 @@ class UserRepository @Autowired constructor(
             status = BaseStatus.active
         )
         userDao.save(updatedUser)
-
     }
 
     @Transactional
@@ -57,11 +58,11 @@ class UserRepository @Autowired constructor(
         userDao.findByUsername(username)?.also { user ->
             user.status = BaseStatus.active
             userDao.save(user)
-        }?: throw RuntimeException("Could not resolve user in validated activation link")
+        } ?: throw RuntimeException("Could not resolve user in validated activation link")
     }
 
     @Transactional
-    fun updateUserSequrityQuestion(securityQuestionDto: SecurityQuestionDto, username:String) {
+    fun updateUserSequrityQuestion(securityQuestionDto: SecurityQuestionDto, username: String) {
         val user = getUser(username)
         val encodeAnswer = passwordEncoder.encode(securityQuestionDto.answer)
         val updatedUser = user.copy(
@@ -72,15 +73,15 @@ class UserRepository @Autowired constructor(
     }
 
     @Transactional
-    fun changeUsername(oldUsername:String , newUsername: String) {
+    fun changeUsername(oldUsername: String, newUsername: String) {
         userDao.findByUsername(oldUsername)?.also { user ->
             user.username = newUsername
             userDao.save(user)
-        }?: throw RuntimeException("Could not resolve user in validated activation link")
+        } ?: throw RuntimeException("Could not resolve user in validated activation link")
     }
 
     @Transactional
-    fun initiateResetPassword(username:String):String {
+    fun initiateResetPassword(username: String): String {
         val user = getUser(username)
         return activationLinkRepository.createLink(
             user,
@@ -89,13 +90,13 @@ class UserRepository @Autowired constructor(
     }
 
     @Transactional
-    fun resetPassword(username: String):String {
+    fun resetPassword(username: String): String {
         val user = getUser(username)
         val passwordGenerator = PasswordGenerator()
         val password = passwordGenerator.generate(8)
         val updatedUser = user.copy(password = passwordEncoder.encode(password), status = BaseStatus.temporary_password)
         userDao.save(updatedUser)
-        return password;
+        return password
     }
 
     fun findByUsername(username: String): User? {
@@ -105,12 +106,12 @@ class UserRepository @Autowired constructor(
     }
 
     fun validatePassword(username: String, password: String): Boolean {
-        return passwordEncoder.matches(password,userDao.findByUsername(username)?.password)
+        return passwordEncoder.matches(password, userDao.findByUsername(username)?.password)
     }
 
-    private fun getUser(username: String):UserEntity {
-       return  userDao.findByUsername(username)?:let {
-           throw ObjectNotFoundException("user does not exist")
-       }
+    private fun getUser(username: String): UserEntity {
+        return userDao.findByUsername(username) ?: let {
+            throw ObjectNotFoundException("user does not exist")
+        }
     }
 }

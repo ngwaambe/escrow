@@ -60,14 +60,15 @@ mail:
 frontend.host.base_url: http://localhost:3000/
 
 activationlink:
-  expiration: 24
+  expiration:
+      resetpassword: 15
 
 security:
   jwt:
     public-key: classpath:public.txt
     secret: bezKoderSecretKey
-    expirationMs: 240000
-    refreshExpirationMs: 480000
+    expirationMs: 900000
+    refreshExpirationMs: 300000
 
 server:
   servlet:

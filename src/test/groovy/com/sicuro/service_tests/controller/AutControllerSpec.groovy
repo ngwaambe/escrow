@@ -111,7 +111,7 @@ class AutControllerSpec extends Specification{
         completeResponse.status == 200
 
         when: "initiate reset password"
-        def initiateResetPasswordResponse = requestHelper.put(
+        def initiateResetPasswordResponse = requestHelper.post(
                 port: port,
                 path: "/api/auth/init_reset_password",
                 body: JsonOutput.toJson([email:"ngwaambe@hotmail.com"])
@@ -124,9 +124,10 @@ class AutControllerSpec extends Specification{
         resetpasswordId != null
 
         when: "reset password"
-        def resetPasswordResponse = requestHelper.get(
+        def resetPasswordResponse = requestHelper.post(
                 port: port,
-                path:"/api/auth/reset_password/${resetpasswordId}"
+                path:"/api/auth/reset_password",
+                body: JsonOutput.toJson([questionAnswer:"angela", activationId:resetpasswordId])
         )
 
         then:

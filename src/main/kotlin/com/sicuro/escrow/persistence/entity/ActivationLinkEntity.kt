@@ -16,7 +16,7 @@ data class ActivationLinkEntity constructor(
     var uuid: String,
 
     @Enumerated(EnumType.STRING)
-    @Column(name="dtype")
+    @Column(name = "dtype")
     var type: LinkType,
 
     var active: Boolean = false,
@@ -40,9 +40,8 @@ data class ActivationLinkEntity constructor(
             ", paymentType='" + type +
             ", active=" + active +
             ", user=" + user +
-            ", created="+ created.toString()+
-            ", lastModified="+ lastModified.toString()+
+            ", created=" + created.toString() +
+            ", lastModified=" + lastModified.toString() +
             "}"
     }
-
 }
