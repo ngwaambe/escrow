@@ -32,7 +32,6 @@ class JwtUtils @Autowired constructor(@Value("\${security.jwt.secret}") val jwtS
         claims["customerId"] = userdata.customerId
         claims["tempPwd"] = userdata.temporaryPassword
         claims["hasSecurityQuestion"] = userdata.hasSecurityQuestion
-
         return Jwts.builder()
             .setClaims(claims)
             .signWith(SignatureAlgorithm.HS512, jwtSecret)
