@@ -29,7 +29,6 @@ class SignupService @Autowired constructor(
     @Value("\${frontend.host.base_url}") val hostName: String,
     @Value("\${activationlink.expiration.resetpassword}") val resetPasswordExpiringOffset: Long
 ) {
-
     @Transactional
     fun signup(signupRequest: SignupRequest) {
         userRepository.findByUsername(signupRequest.contact.email)?.let {
@@ -65,7 +64,7 @@ class SignupService @Autowired constructor(
     @Transactional
     fun activateAccount(activationUuid: String) {
         logger.info("activating account for activationId:$activationUuid")
-        activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION)?.let {
+        activationLinkRepository.findByIdAndType(activationUuid, LinkType.ACCOUNT_ACTIVATION).let {
             if (it.active) {
                 userRepository.activateUser(it.user.username)
                 activationLinkRepository.save(it.copy(active = false))
@@ -90,14 +89,14 @@ class SignupService @Autowired constructor(
         props["accountNumber"] = customer.customerNumber
         props["userName"] = customer.email
         val subject: String = getSubject(customer.language, "ResetpasswordStepOne")!!
-        val email: String = customer.email
+        val customerEmail: String = customer.email
         val template: String = getMailTemplate(customer.language, "initiateResetPassword")
-        sendMail(email, subject, template, props)
+        sendMail(customerEmail, subject, template, props)
     }
 
     fun getSecurityQuestion(activationUuid: String): SecurityQuestionResponse {
         logger.info("Fetching secuityQuestion resetpassword activationId:{}", activationUuid)
-        return activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD)?.let {
+        return activationLinkRepository.findByIdAndType(activationUuid, LinkType.RESET_PASSWORD).let {
             if (it.created!!.isAfter(OffsetDateTime.now().plusMinutes(resetPasswordExpiringOffset))) {
                 logger.info("Resetpassword activationId:{} has expired", activationUuid)
                 throw ExpiredLinkException("This lick is has expired")

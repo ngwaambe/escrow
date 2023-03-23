@@ -23,22 +23,39 @@ class AuthController @Autowired constructor(
 ) {
 
     @PostMapping("/token")
-    fun authenticateUser(@RequestBody @Valid request: TokenRequest) = ResponseEntity.ok(signinService.login(request))
+    fun authenticateUser(
+        @RequestBody @Valid
+        request: TokenRequest
+    ) = ResponseEntity.ok(signinService.login(request))
 
     @PostMapping("/check_token")
-    fun validateToken(@RequestBody @Valid request: CheckTokenRequest) = ResponseEntity.ok(signinService.checkToken(request))
+    fun validateToken(
+        @RequestBody @Valid
+        request: CheckTokenRequest
+    ) = ResponseEntity.ok(signinService.checkToken(request))
 
     @PostMapping("/refresh_token")
-    fun refreshToken(@RequestBody @Valid request: RefreshTokenRequest) = ResponseEntity.ok(signinService.refreshToken(request))
+    fun refreshToken(
+        @RequestBody @Valid
+        request: RefreshTokenRequest
+    ) = ResponseEntity.ok(signinService.refreshToken(request))
 
     @PostMapping("/signup")
-    fun signupUser(@RequestBody @Valid request: SignupRequest) = ResponseEntity.ok(signupService.signup(request))
+    fun signupUser(
+        @RequestBody @Valid
+        request: SignupRequest
+    ) = ResponseEntity.ok(signupService.signup(request))
 
     @GetMapping("/activate_account/{activationId}")
     fun activateAccount(@PathVariable activationId: String) = ResponseEntity.ok(signupService.activateAccount(activationId))
 
     @PutMapping("/complete_signup")
-    fun completeUserSignup(@RequestBody @Valid request: CompleteSignupRequest, @NotNull @RequestHeader("Authorization") headerAuth: String) {
+    fun completeUserSignup(
+        @RequestBody @Valid
+        request: CompleteSignupRequest,
+        @NotNull @RequestHeader("Authorization")
+        headerAuth: String
+    ) {
         JwtTokenHelper.parseJwtToken(headerAuth)?.also {
             val customerId = jwtUtils.getCustomerIdFromToken(it)
             signupService.completeSignup(customerId, request)
@@ -46,7 +63,10 @@ class AuthController @Autowired constructor(
     }
 
     @PostMapping("/init_reset_password")
-    fun initiatePasswordReset(@RequestBody @Valid request: InitiatResetPasswordRequest) = ResponseEntity.ok(signupService.initiatePasswordReset(request.email))
+    fun initiatePasswordReset(
+        @RequestBody @Valid
+        request: InitiatResetPasswordRequest
+    ) = ResponseEntity.ok(signupService.initiatePasswordReset(request.email))
 
     @GetMapping("/reset_password/{activationId}")
     fun resetPassword(@PathVariable activationId: String) = ResponseEntity.ok(signupService.getSecurityQuestion(activationId))

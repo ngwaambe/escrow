@@ -54,23 +54,23 @@ class CustomerService @Autowired constructor(
     }
 
     fun updateCustomer(customerId: Long, request: CustomerDetail): Customer {
-        val customer = customerRepository.getCustomer(customerId)
-
-        val updatedCustomer = customer.copy(
-            title = request.title,
-            language = request.language,
-            firstname = request.firstname,
-            lastname = request.lastname,
-            organisation = request.organisation?.name ?: customer.organisation,
-            taxNumber = request.organisation?.taxNumber ?: customer.taxNumber
-        )
-        return customerRepository.updateCustomerDetails(updatedCustomer)
+        return customerRepository.getCustomer(customerId).let {
+            val updatedCustomer = it.copy(
+                title = request.title,
+                language = request.language,
+                firstname = request.firstname,
+                lastname = request.lastname,
+                organisation = request.organisation?.name ?: it.organisation,
+                taxNumber = request.organisation?.taxNumber ?: it.taxNumber
+            )
+            return customerRepository.updateCustomerDetails(updatedCustomer)
+        }
     }
 
     fun updateCustomerAddress(customerId: Long, request: Address) = customerRepository.updateAddress(customerId, request)
 
     fun changePassword(customerId: Long, request: ChangePassword) {
-        customerRepository.getCustomer(customerId)?.let {
+        customerRepository.getCustomer(customerId).let {
             if (userRepository.validatePassword(it.email, request.currentPassword)) {
                 userRepository.changePassword(it.email, request.password)
                 signinService.refreshSecurityContext(TokenRequest(it.email, request.password))
@@ -122,7 +122,7 @@ class CustomerService @Autowired constructor(
             .toString()
     }
 
-    private fun getMailTemplate(locale: String, templateName: String) = "/" + locale + "/" + templateName + ".ftl"
+    private fun getMailTemplate(locale: String, templateName: String) = "/$locale/$templateName.ftl"
 
     private fun messageUtil(locale: String, resource: String): MessageUtil {
         return MessageUtil.getInstance(MessageBundleKey(Locale(locale), resource))

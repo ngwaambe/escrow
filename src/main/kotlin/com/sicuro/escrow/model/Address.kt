@@ -1,9 +1,7 @@
 package com.sicuro.escrow.model
 
 import com.sicuro.escrow.persistence.entity.AddressEntity
-import java.time.OffsetDateTime
 import javax.validation.constraints.NotNull
-import javax.validation.constraints.Past
 import javax.validation.constraints.Size
 
 data class
@@ -29,7 +27,7 @@ Address(
         countryIso,
         phoneNumber);
 
-    companion object factory {
+    companion object Factory {
         fun convert(address: AddressEntity) = Address(
             address.id,
             address.street,

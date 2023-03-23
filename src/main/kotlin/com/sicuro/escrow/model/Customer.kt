@@ -47,7 +47,7 @@ data class Customer constructor(
             taxNumber,
             false,
             null,
-            null,
+            null
         )
 
     fun convert(): CustomerEntity {
@@ -94,5 +94,4 @@ data class Customer constructor(
             )
         }
     }
-
 }

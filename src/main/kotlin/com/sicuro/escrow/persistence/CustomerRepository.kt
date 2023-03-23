@@ -140,9 +140,9 @@ class CustomerRepository(
 
     @Transactional
     fun changeEmail(customerId: Long, email: String) {
-        val customer = getCustomer(customerId)
-        val updatedCustomer = customer.copy(email = email)
-        customerDao.save(updatedCustomer.convert())
+        val customer = getCustomer(customerId)?.let {
+            customerDao.save(it.copy(email = email).convert())
+        }
     }
 
     fun getCustomer(customerId: Long): Customer {
